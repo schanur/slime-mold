@@ -1,0 +1,21 @@
+#!/bin/bash
+SCRIPT_DIR=$(dirname $0)
+. ${SCRIPT_DIR}/sh_inc/lockfile.sh
+. ${SCRIPT_DIR}/sh_inc/parse_cmd.sh
+
+. ${SCRIPT_DIR}/sh_inc/appliance.sh
+. ${SCRIPT_DIR}/sh_inc/switch.sh
+. ${SCRIPT_DIR}/sh_inc/vm.sh
+. ${SCRIPT_DIR}/sh_inc/ssh.sh
+
+
+
+if [ "${?}" != "0" ]; then
+    ERR=1
+    echo "exit status: ${?}"
+fi
+
+parse_cmd $*
+
+exit ${ERR}
+

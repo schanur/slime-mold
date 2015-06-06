@@ -1,0 +1,21 @@
+declare -a SETUP=(
+        "switch                             switch_appl_serv_cli"
+        "vm     vm/controller/client.qcow2  switch_appl_serv_cli"
+        "vm     vm/controller/server.qcow2  switch_appl_serv_cli"
+)
+
+declare -a RUN=(
+        "ssh  exec date"
+        "ssh  exec date"
+)
+
+
+
+#section
+#
+#CMD_CNT=${#CMD_LIST[@]}
+#(( --CMD_CNT ))
+#for CMD_NO in $(seq 0 ${CMD_CNT}); do
+#    echo ${CMD_LIST[${CMD_NO}]}
+#    #echo ${CMD}
+#done
