@@ -1,38 +1,38 @@
 function usage()
 {
-    echo 
-    echo "virtnet usage:"
+    echo
+    echo "${PROGRAM_NAME} usage:"
     echo
     echo "-------------------------------------------------------------------------------"
     echo "| CMD  | ACTION  | SUBACTION             | PARAMETER                          |"
     echo "-------------------------------------------------------------------------------"
     echo
-    echo "virtnet appliance start                   APPL_FILE"
-    echo "virtnet appliance stop                    APPL_FILE"
+    echo "${PROGRAM_SHORT_NAME} appliance start                   APPL_FILE"
+    echo "${PROGRAM_SHORT_NAME} appliance stop                    APPL_FILE"
     echo
-    echo "virtnet switch    start                   SWITCH_NAME"
-    echo "virtnet switch    stop                    SWITCH_NAME"
-#   echo "virtnet switch    status                  SWITCH_NAME"
-    echo "virtnet switch    console                 SWITCH_NAME"
-    echo "virtnet switch    list"
+    echo "${PROGRAM_SHORT_NAME} switch    start                   SWITCH_NAME"
+    echo "${PROGRAM_SHORT_NAME} switch    stop                    SWITCH_NAME"
+#   echo "${PROGRAM_SHORT_NAME} switch    status                  SWITCH_NAME"
+    echo "${PROGRAM_SHORT_NAME} switch    console                 SWITCH_NAME"
+    echo "${PROGRAM_SHORT_NAME} switch    list"
 #   echo
-#   echo "virtnet cable     add                     SWITCH_NAME_1 SWITCH_NAME_2"
-#   echo "virtnet cable     remove                  SWITCH_NAME_1 SWITCH_NAME_2"
+#   echo "${PROGRAM_SHORT_NAME} cable     add                     SWITCH_NAME_1 SWITCH_NAME_2"
+#   echo "${PROGRAM_SHORT_NAME} cable     remove                  SWITCH_NAME_1 SWITCH_NAME_2"
     echo
-    echo "virtnet vm        create_new              VM_IMAGE"
-    echo "virtnet vm        create_overlay          VM_IMAGE      VM_BASE_IMAGE"
-    echo "virtnet vm        start                   VM_IMAGE      SWITCH_NAME"
-#   echo "virtnet vm        stop           [-b SEC] VM_NAME"
-    echo "virtnet vm        stop                    VM_NAME"
-    echo "virtnet vm        log                     VM_NAME"
-    echo "virtnet vm        status                  VM_NAME"
-    echo "virtnet vm        list"
+    echo "${PROGRAM_SHORT_NAME} vm        create_new              VM_IMAGE"
+    echo "${PROGRAM_SHORT_NAME} vm        create_overlay          VM_IMAGE      VM_BASE_IMAGE"
+    echo "${PROGRAM_SHORT_NAME} vm        start                   VM_IMAGE      SWITCH_NAME"
+#   echo "${PROGRAM_SHORT_NAME} vm        stop           [-b SEC] VM_NAME"
+    echo "${PROGRAM_SHORT_NAME} vm        stop                    VM_NAME"
+    echo "${PROGRAM_SHORT_NAME} vm        log                     VM_NAME"
+    echo "${PROGRAM_SHORT_NAME} vm        status                  VM_NAME"
+    echo "${PROGRAM_SHORT_NAME} vm        list"
     echo
-    echo "virtnet ssh       install_key             VM_NAME"
-    echo "virtnet ssh       send                    VM_NAME       LOCAL_SOURCE  VM_TARGET"
-    echo "virtnet ssh       receive                 VM_NAME       VM_SOURCE     LOCAL_TARGET"
-    echo "virtnet ssh       exec                    VM_NAME       COMMAND"
-    echo "virtnet ssh       login                   VM_NAME"
+    echo "${PROGRAM_SHORT_NAME} ssh       install_key             VM_NAME"
+    echo "${PROGRAM_SHORT_NAME} ssh       send                    VM_NAME       LOCAL_SOURCE  VM_TARGET"
+    echo "${PROGRAM_SHORT_NAME} ssh       receive                 VM_NAME       VM_SOURCE     LOCAL_TARGET"
+    echo "${PROGRAM_SHORT_NAME} ssh       exec                    VM_NAME       COMMAND"
+    echo "${PROGRAM_SHORT_NAME} ssh       login                   VM_NAME"
     echo
 }
 

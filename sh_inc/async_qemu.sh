@@ -20,20 +20,20 @@ fi
 
 #QEMU_CMD="qemu -m 64 ${HW_ACCELERATION_STR} -hda ${IMAGE_FILE}" \
 #    " -netdev user,id=um__${VM_NAME},macaddr=${UMODE_NIC_MAC_ADDR},hostfwd=tcp::${VM_SSH_PORT}-:22" \
-#    " -netdev vde,macaddr=${VDE_NIC_MAC_ADDR}, sock=/tmp/virtnet__switch__${VDE_SWITCH_NAME}"
+#    " -netdev vde,macaddr=${VDE_NIC_MAC_ADDR}, sock=/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}"
 
-#QEMU_CMD="qemu -m 64 ${HW_ACCELERATION_STR} -hda ${IMAGE_FILE} -netdev user,id=um__${VM_NAME},macaddr=${UMODE_NIC_MAC_ADDR},hostfwd=tcp::${VM_SSH_PORT}-:22 -netdev vde,macaddr=${VDE_NIC_MAC_ADDR},sock=/tmp/virtnet__switch__${VDE_SWITCH_NAME}"
+#QEMU_CMD="qemu -m 64 ${HW_ACCELERATION_STR} -hda ${IMAGE_FILE} -netdev user,id=um__${VM_NAME},macaddr=${UMODE_NIC_MAC_ADDR},hostfwd=tcp::${VM_SSH_PORT}-:22 -netdev vde,macaddr=${VDE_NIC_MAC_ADDR},sock=/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}"
 
-#QEMU_CMD="qemu -m 64 ${HW_ACCELERATION_STR} -hda ${IMAGE_FILE} -net user,id=um__${VM_NAME},macaddr=${UMODE_NIC_MAC_ADDR},hostfwd=tcp::${VM_SSH_PORT}-:22 -netdev vde,macaddr=${VDE_NIC_MAC_ADDR},sock=/tmp/virtnet__switch__${VDE_SWITCH_NAME}"
+#QEMU_CMD="qemu -m 64 ${HW_ACCELERATION_STR} -hda ${IMAGE_FILE} -net user,id=um__${VM_NAME},macaddr=${UMODE_NIC_MAC_ADDR},hostfwd=tcp::${VM_SSH_PORT}-:22 -netdev vde,macaddr=${VDE_NIC_MAC_ADDR},sock=/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}"
 
-#QEMU_CMD="qemu ${HW_ACCELERATION_STR} -m 64 -hda ${IMAGE_FILE} -net nic,macaddr=${UMODE_NIC_MAC_ADDR} -net user,net=10.0.2.0/24,dhcpstart=${VM_IP},hostfwd=tcp::${VM_SSH_PORT}-:22 -net nic,macaddr=${VDE_NIC_MAC_ADDR} -net vde,sock=/tmp/virtnet__switch__${VDE_SWITCH_NAME}"
+#QEMU_CMD="qemu ${HW_ACCELERATION_STR} -m 64 -hda ${IMAGE_FILE} -net nic,macaddr=${UMODE_NIC_MAC_ADDR} -net user,net=10.0.2.0/24,dhcpstart=${VM_IP},hostfwd=tcp::${VM_SSH_PORT}-:22 -net nic,macaddr=${VDE_NIC_MAC_ADDR} -net vde,sock=/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}"
 
 QEMU_CMD="qemu "                 \
         "${HW_ACCELERATION_STR}" \
         "-m 64"                  \
         "-hda ${IMAGE_FILE}"     \
         "-net nic,macaddr=${UMODE_NIC_MAC_ADDR},vlan=${VM_VLAN} -net user,net=10.0.2.0/24,dhcpstart=${VM_IP},hostfwd=tcp::${VM_SSH_PORT}-:22,vlan=${VM_VLAN}" \
-        "-net nic,macaddr=${VDE_NIC_MAC_ADDR} -net vde,sock=/tmp/virtnet__switch__${VDE_SWITCH_NAME}"
+        "-net nic,macaddr=${VDE_NIC_MAC_ADDR} -net vde,sock=/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}"
 
 echo "VM name:      ${VM_NAME}"
 echo "Image file:   ${IMAGE_FILE}"
@@ -51,7 +51,7 @@ lf__create_lockfile ${LOCKFILE_VM}
 echo -n "start time: "
 date
 ${QEMU_CMD}
-#qemu ${HW_ACCELERATION_STR} -hda ${IMAGE_FILE} -m 64 -net nic,macaddr=${UMODE_NIC_MAC_ADDR},vlan=0 -net user,vlan=0,hostfwd=tcp::${VM_SSH_PORT}-:22 -net nic,macaddr=${VDE_NIC_MAC_ADDR} -net vde,sock=/tmp/virtnet__switch__${VDE_SWITCH_NAME}
+#qemu ${HW_ACCELERATION_STR} -hda ${IMAGE_FILE} -m 64 -net nic,macaddr=${UMODE_NIC_MAC_ADDR},vlan=0 -net user,vlan=0,hostfwd=tcp::${VM_SSH_PORT}-:22 -net nic,macaddr=${VDE_NIC_MAC_ADDR} -net vde,sock=/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}
 echo -n "stop time:  "
 date
 lf__destroy_lockfile ${LOCKFILE_VM}

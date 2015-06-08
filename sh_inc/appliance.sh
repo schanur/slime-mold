@@ -1,5 +1,5 @@
-declare -a APPLIANCE__VIRTNET_CMD_LIST
-APPLIANCE__VIRTNET_CMD_LIST_LENGTH=0
+declare -a APPLIANCE__MYC_CMD_LIST
+APPLIANCE__MYC_CMD_LIST_LENGTH=0
 
 declare -a APPLIANCE__TEST_CMD_LIST
 APPLIANCE__TEST_CMD_LIST_LENGTH=0
@@ -132,7 +132,7 @@ function section()
     echo "section found: $*"
 }
 
-function virtnet()
+function myc()
 {
     local ERR
     local CMD=${*}

@@ -1,4 +1,8 @@
 #!/bin/bash
+
+PROGRAM_NAME="Slime Mold"
+PROGRAM_SHORT_NAME="sm"
+
 SCRIPT_DIR=$(dirname $0)
 . ${SCRIPT_DIR}/sh_inc/lockfile.sh
 . ${SCRIPT_DIR}/sh_inc/parse_cmd.sh

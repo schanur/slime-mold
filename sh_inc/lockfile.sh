@@ -9,7 +9,7 @@ LF__LOCKFILE_NAME="" # Used by lf__lockfile_name()
 # {
 #     local VM_NAME=${1}
 
-#     LF__LOCKFILE_NAME=/tmp/virtnet__vde_vm_name__${VM_NAME}.lock
+#     LF__LOCKFILE_NAME=/tmp/${PROGRAM_SHORT_NAME}__vde_vm_name__${VM_NAME}.lock
 # }
 
 # Create the filename of the lockfile by 2 parameters.
@@ -20,7 +20,7 @@ function lf__lockfile_name()
     local SSH_REDIRECT_PORT=${1}
     local VM_NAME=${2}
 
-    LF__LOCKFILE_NAME=/tmp/virtnet__vde_vm__${SSH_REDIRECT_PORT}__${VM_NAME}.lock
+    LF__LOCKFILE_NAME=/tmp/${PROGRAM_SHORT_NAME}__vde_vm__${SSH_REDIRECT_PORT}__${VM_NAME}.lock
 }
 
 # Create a lockfile with the path/name
@@ -85,8 +85,8 @@ function lf__unlock_global()
 #     local CURR_PORT
 #     local CURR_VM_NAME
 #     local VM_NAME=${1}
-#     for LOCKFILE_NAME_PARTIAL in $(find /tmp -name "virtnet__vde_vm__*__${VM_NAME}.lock" |sed 's/virtnet__vde_vm__//g |'); do
-#         CURR_VM_NAME = $(echo ${LOCKFILE_NAME_PARTIAL} |sed 's/virtnet__vde_vm__//g' |sed 's/.*__//g' |sed 's/\.lock//g'
+#     for LOCKFILE_NAME_PARTIAL in $(find /tmp -name "${PROGRAM_SHORT_NAME}__vde_vm__*__${VM_NAME}.lock" |sed 's/${PROGRAM_SHORT_NAME}__vde_vm__//g |'); do
+#         CURR_VM_NAME = $(echo ${LOCKFILE_NAME_PARTIAL} |sed 's/${PROGRAM_SHORT_NAME}__vde_vm__//g' |sed 's/.*__//g' |sed 's/\.lock//g'
 #         if [ "${CURR_VM_NAME}" = "${VM_NAME}" ]; then
 #             CURR_PORT = $(echo ${LOCKFILE_NAME_PARTIAL} |sed 's/__.*\.lock//g')
 #             break

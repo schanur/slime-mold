@@ -69,7 +69,7 @@ function vm__find_free_tcp_port()
         fi
         # We found a free port by looking into the netstat table.
         # We also check that the port doesn't occur in the lockfiles.
-        FOUND_IN_LOCKFILE=$(find /tmp -maxdepth 1 -name "virtnet__vde_vm__${PORT}__*.lock" |wc -l)
+        FOUND_IN_LOCKFILE=$(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__${PORT}__*.lock" |wc -l)
         if [ "${FOUND_IN_LOCKFILE}" != "0" ]; then
             echo "Warning! TCP port ${PORT} is not listening, but lockfile exists."
             continue
@@ -271,7 +271,7 @@ function vm__vm_running()
     local VM_NAME=${1}
 
     MATCH_CNT=0
-    for LOCKFILE_NAME_PARTIAL in $(find /tmp -maxdepth 1 -name "virtnet__vde_vm__*__${VM_NAME}.lock"); do
+    for LOCKFILE_NAME_PARTIAL in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__*__${VM_NAME}.lock"); do
         (( MATCH_CNT++ ))
     done
 
@@ -280,7 +280,7 @@ function vm__vm_running()
     elif [[ "${MATCH_CNT}" = "0" ]]; then
         return 0
     else
-        echo "Error: More than one lockfile found for \"virtnet__vde_vm__*__${VM_NAME}.lock\""
+        echo "Error: More than one lockfile found for \"${PROGRAM_SHORT_NAME}__vde_vm__*__${VM_NAME}.lock\""
         exit 1
     fi
 }
@@ -327,7 +327,7 @@ function vm__log()
         echo "VM not running."
     fi
 
-    for VM_LOG_FILE in $(find /tmp -maxdepth 1 -name "virtnet__vde_vm__*__${VM_NAME}.lock.log"); do
+    for VM_LOG_FILE in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__*__${VM_NAME}.lock.log"); do
         echo "Logfile exists:"
         cat  ${VM_LOG_FILE}
     done
@@ -372,9 +372,9 @@ function vm__list()
     local VM_NAME
     local VM_SSH_PORT
 
-    for LOCKFILE_NAME in $(find /tmp -maxdepth 1 -name "virtnet__vde_vm__*__*.lock"); do
-        VM_NAME=$(    echo ${LOCKFILE_NAME} |sed 's|/tmp/virtnet__vde_vm__||g' |sed 's|.*__||g' |sed 's|.lock||g')
-        VM_SSH_PORT=$(echo ${LOCKFILE_NAME} |sed 's|/tmp/virtnet__vde_vm__||g' |sed 's|__.*||g' |sed 's|.lock||g')
+    for LOCKFILE_NAME in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__*__*.lock"); do
+        VM_NAME=$(    echo ${LOCKFILE_NAME} |sed 's|/tmp/${PROGRAM_SHORT_NAME}__vde_vm__||g' |sed 's|.*__||g' |sed 's|.lock||g')
+        VM_SSH_PORT=$(echo ${LOCKFILE_NAME} |sed 's|/tmp/${PROGRAM_SHORT_NAME}__vde_vm__||g' |sed 's|__.*||g' |sed 's|.lock||g')
         echo ${VM_NAME} ${VM_SSH_PORT}
     done
 }

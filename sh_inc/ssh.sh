@@ -125,8 +125,8 @@ function ssh__vm_name_2_ssh_port()
     local CURR_VM_NAME
     local VM_NAME=${1}
 
-    for LOCKFILE_NAME_PARTIAL in $(find /tmp -maxdepth 1 -name "virtnet__vde_vm__*__${VM_NAME}.lock" |sed 's/\/tmp\/virtnet__vde_vm__//g'); do
-        CURR_VM_NAME=$(echo ${LOCKFILE_NAME_PARTIAL} |sed 's/virtnet__vde_vm__//g' |sed 's/.*__//g' |sed 's/\.lock//g')
+    for LOCKFILE_NAME_PARTIAL in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__*__${VM_NAME}.lock" |sed 's/\/tmp\/${PROGRAM_SHORT_NAME}__vde_vm__//g'); do
+        CURR_VM_NAME=$(echo ${LOCKFILE_NAME_PARTIAL} |sed 's/${PROGRAM_SHORT_NAME}__vde_vm__//g' |sed 's/.*__//g' |sed 's/\.lock//g')
         if [ "${CURR_VM_NAME}" = "${VM_NAME}" ]; then
             CURR_PORT=$(echo ${LOCKFILE_NAME_PARTIAL} |sed 's/__.*\.lock//g')
             SSH__VM_PORT=${CURR_PORT}
