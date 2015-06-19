@@ -1,19 +1,20 @@
 #!/bin/bash
+# TODO: check why "set -e" does not work.
+set -uo pipefail
 
 PROGRAM_NAME="Slime Mold"
 PROGRAM_SHORT_NAME="sm"
 
 SCRIPT_DIR=$(dirname $0)
-. ${SCRIPT_DIR}/sh_inc/lockfile.sh
-. ${SCRIPT_DIR}/sh_inc/parse_cmd.sh
+INCLUDE_DIR="${SCRIPT_DIR}/sh_inc"
+. ${INCLUDE_DIR}/lockfile.sh
+. ${INCLUDE_DIR}/parse_cmd.sh
+. ${INCLUDE_DIR}/appliance.sh
+. ${INCLUDE_DIR}/switch.sh
+. ${INCLUDE_DIR}/vm.sh
+. ${INCLUDE_DIR}/ssh.sh
 
-. ${SCRIPT_DIR}/sh_inc/appliance.sh
-. ${SCRIPT_DIR}/sh_inc/switch.sh
-. ${SCRIPT_DIR}/sh_inc/vm.sh
-. ${SCRIPT_DIR}/sh_inc/ssh.sh
-
-
-
+ERR=0
 if [ "${?}" != "0" ]; then
     ERR=1
     echo "exit status: ${?}"
@@ -22,4 +23,3 @@ fi
 parse_cmd $*
 
 exit ${ERR}
-

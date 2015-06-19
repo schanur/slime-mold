@@ -229,7 +229,7 @@ function vm__start()
     VM_VLAN=${VM__FOUND_FREE_VLAN}
     echo ${VM_VLAN}
 
-    lf__lockfile_name ${VM_SSH_PORT} ${VM_NAME}
+    lf__lockfile_name__virtual_machine ${VM_SSH_PORT} ${VM_NAME}
     LOCKFILE_VM=${LF__LOCKFILE_NAME}
 
     vm__check_kvm_extension

@@ -4,7 +4,17 @@ function switch__start()
     local VDE_SWITCH_NAME
 
     VDE_SWITCH_NAME=$1
+
+    switch__status ${VDE_SWITCH_NAME}
+    SWITCH_RUNNING=${?}
+    if [ "${SWITCH_RUNNING}" != "1" ]; then
+        echo "Switch ${VDE_SWITCH_NAME} is already running."
+        exit 1
+    fi
+
     vde_switch --daemon --sock /tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME} --mgmt /tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}.mgmt
+    # TODO: Find a way to sync only the files we have created.
+    sync
 }
 
 # Shutdown a switch
@@ -15,6 +25,7 @@ function switch__stop()
     local PID
 
     VDE_SWITCH_NAME=${1}
+
     switch__status ${VDE_SWITCH_NAME}
     SWITCH_RUNNING=${?}
     if [ "${SWITCH_RUNNING}" != "0" ]; then
@@ -24,6 +35,8 @@ function switch__stop()
     
     PID=$(ps aux |grep "vde" |grep "/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}" |sed 's/\ \ /\ /g' |sed 's/\ \ /\ /g' |sed 's/\ \ /\ /g' |cut -d " " -f 2)
     kill ${PID}
+    # TODO: Find a way to sync only the files we have created.
+    sync
 }
 
 # Login into the terminal of the switch.
@@ -52,8 +65,8 @@ function switch__list()
 {
     local VDE_SWITCH_NAME
 
-    for VDE_SWITCH_NAME in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__switch__*.mgmt" |sed 's|/tmp/${PROGRAM_SHORT_NAME}__switch__||g' |sed 's|\.mgmt||g'); do
-        echo ${VDE_SWITCH_NAME}
+    for VDE_SWITCH_NAME in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__switch__*.mgmt"); do
+        echo ${VDE_SWITCH_NAME} |sed "s|/tmp/${PROGRAM_SHORT_NAME}__switch__||g" |sed 's|\.mgmt||g'
     done
 }
 

@@ -3,7 +3,7 @@
 # created lockfile which is then used in the trap command.
 LF__LOCKFILE_LIST="" # Used by lf__create_lockfile(), lf__destroy_lockfile_list()
 
-LF__LOCKFILE_NAME="" # Used by lf__lockfile_name()
+LF__LOCKFILE_NAME="" # Used by lf__lockfile_name_*()
 
 # function lf__vm_lockfile_name()
 # {
@@ -15,7 +15,7 @@ LF__LOCKFILE_NAME="" # Used by lf__lockfile_name()
 # Create the filename of the lockfile by 2 parameters.
 # 1. SSH port
 # 2. VM name
-function lf__lockfile_name()
+function lf__lockfile_name__virtual_machine()
 {
     local SSH_REDIRECT_PORT=${1}
     local VM_NAME=${2}
@@ -24,7 +24,7 @@ function lf__lockfile_name()
 }
 
 # Create a lockfile with the path/name
-# of the parameter $1. 
+# of the parameter $1.
 function lf__create_lockfile()
 {
     local ERR

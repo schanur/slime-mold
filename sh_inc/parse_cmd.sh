@@ -52,28 +52,28 @@ function expected_param()
 {
     local ARGS=${1}
     local MIN_ARGS=${2}
-    local MAX_ARGS=${3}
+    # local MAX_ARGS=${3}
 
-    if [ "${MAX_ARGS}" = "" ]; then
-        MAX_ARGS=${MIN_ARGS}
-    fi
+    # if [ "${MAX_ARGS}" = "" ]; then
+    #     MAX_ARGS=${MIN_ARGS}
+    # fi
 
-    if   [ ${ARGS} -lt ${MIN_ARGS} -o ${ARGS} -gt ${MAX_ARGS} ]; then
+    # if [ ${ARGS} -lt ${MIN_ARGS} -o ${ARGS} -gt ${MAX_ARGS} ]; then
+    if [ ${ARGS} -lt ${MIN_ARGS} ]; then
         invalid_params "Number of parameter not allowed for action \"${ACTION}\" with sub action \"${SUB_ACTION}\""
     fi
 }
 
 function parse_cmd()
 {
+    if [ "$#" = "0" -o "$#" = "1" ]; then
+        invalid_params "Too few arguments."
+    fi
 
     local ERR=0
     local ACTION=${1}
     local SUB_ACTION=${2}
-    
-    if [ "$#" = "0" -o "$#" = "1" ]; then
-        invalid_params "Too few arguments."
-    fi
-    
+
     shift 2
     
     if   [ "${ACTION}" = "appliance" ]; then
