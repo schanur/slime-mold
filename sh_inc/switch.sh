@@ -22,6 +22,7 @@ function switch__stop()
 {
     local VDE_SWITCH_NAME
     local SWITCH_RUNNING
+    local SWITCH_PS_LINE
     local PID
 
     VDE_SWITCH_NAME=${1}
@@ -32,8 +33,9 @@ function switch__stop()
         echo "Switch ${VDE_SWITCH_NAME} is not running."
         exit 1
     fi
-    
-    PID=$(ps aux |grep "vde" |grep "/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}" |sed 's/\ \ /\ /g' |sed 's/\ \ /\ /g' |sed 's/\ \ /\ /g' |cut -d " " -f 2)
+
+    SWITCH_PS_LINE=$(ps aux |grep "vde" |grep "/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}")
+    PID=$(echo ${SWITCH_PS_LINE} |sed 's/\ \ /\ /g' |sed 's/\ \ /\ /g' |sed 's/\ \ /\ /g' |cut -d " " -f 2)
     kill ${PID}
     # TODO: Find a way to sync only the files we have created.
     sync
