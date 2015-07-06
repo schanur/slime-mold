@@ -1,0 +1,4 @@
+[submodule "extern/buildroot"]
+	path = extern/buildroot
+	url = git://git.buildroot.net/buildroot
+	ignore = dirty
