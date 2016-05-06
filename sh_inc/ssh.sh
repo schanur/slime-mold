@@ -24,7 +24,7 @@ function ssh__login_key_exists()
 }
 
 # Copy one or more files to VM. If source file
-# is a directory, the directory and all 
+# is a directory, the directory and all
 # files/directories in it are also coppied
 # recursively.
 #
@@ -39,7 +39,7 @@ function ssh__send()
 
     VM_NAME=$1
     #local RECURSIVE=""
-    
+
     ssh__vm_name_2_ssh_port ${VM_NAME}
     tar cf - ${SOURCE} | ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i ssh_conf/id_rsa ${SSH__VM_USERNAME}@127.0.0.1 tar xf -
     #tar cf - ${SOURCE} | ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i ssh_conf/id_rsa ${SSH__VM_USERNAME}@127.0.0.1 tar xf -C ${TARGET} -
@@ -47,14 +47,14 @@ function ssh__send()
 
     # if [ -d "${SOURCE}" ]; then
     #     RECURSIVE="-r"
-        
+
     # fi
     # scp -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} ${RECURSIVE} -P 12201 ${SOURCE} ${SSH__VM_USERNAME}@127.0.0.1:${TARGET}
 }
 
-# Copy one or more files from the  VM to the local 
-# filesystem. If source file is a directory, the 
-# directory and all files/directories in it are 
+# Copy one or more files from the  VM to the local
+# filesystem. If source file is a directory, the
+# directory and all files/directories in it are
 # also coppied recursively.
 #
 # Parameter:
@@ -109,7 +109,7 @@ function ssh__exec()
     #ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i ssh_conf/id_rsa ${SSH__VM_USERNAME}@127.0.0.1 $*
     ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i ssh_conf/id_rsa ${SSH__VM_USERNAME}@127.0.0.1 $*
     ERR=${?}
-    
+
     return ${ERR}
 }
 
