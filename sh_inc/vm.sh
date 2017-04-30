@@ -8,6 +8,11 @@ VM__UNIQUE_MAC_ADDR=""
 VM__USED_IP_BYTE_LIST=""
 VM__USED_VLAN_LIST=""
 
+VM__INCOMPLETE_IMAGE_CACHE_PATH="${HOME}/.cache/slime-mold/prebuild/incomplete"
+VM__READY_IMAGE_CACHE_PATH="${HOME}/.cache/slime-mold/prebuild/ready"
+
+VM__PREBUILD_DOWNLOAD_LIST_FILE="${SCRIPT_DIR}/data/vm_creation/download_prebuild"
+
 # Check if OS has hardware virtualization
 # support. If OS supports KVM, return 1.
 # Return 0 otherwise.
@@ -284,6 +289,110 @@ function vm__vm_running()
         echo "Error: More than one lockfile found for \"${PROGRAM_SHORT_NAME}__vde_vm__*__${VM_NAME}.lock\""
         exit 1
     fi
+}
+
+# Prints a formated table with VM name and download URL.
+function vm__list_prebuild()
+{
+    cat ${VM__PREBUILD_DOWNLOAD_LIST_FILE} | grep -v "^\ *#" | tr -s ' ' | cut -f 1,2 -d ' ' | column -t
+}
+
+function vm__download_prebuild_to_cache()
+{
+    local URL="${1}"
+    local BASE64_URL="$(echo ${URL} | base64 -w 0)"
+    local PROTOCOL=$(echo ${URL} | sed -e 's/:.*//g')
+    local REMOTE_BASENAME="$(echo ${URL} | sed -e 's|^./||g')"
+    local TEMPORARY_IMAGE_FILENAME="${VM__INCOMPLETE_IMAGE_CACHE_PATH}/${BASE64_URL}"
+    local READY_IMAGE_FILENAME="${VM__READY_IMAGE_CACHE_PATH}/${BASE64_URL}"
+    local DOWNLOAD_COMPLETE=0
+
+    # echo "URL:                      ${URL}"
+    # echo "BASE64_URL:               ${BASE64_URL}"
+    # echo "PROTOCOL:                 ${PROTOCOL}"
+    # echo "REMOTE_BASENAME:          ${REMOTE_BASENAME}"
+    # echo "TEMPORARY_IMAGE_FILENAME: ${TEMPORARY_IMAGE_FILENAME}"
+    # echo "READY_IMAGE_FILENAME:     ${READY_IMAGE_FILENAME}"
+
+    if [ ! -d "${VM__INCOMPLETE_IMAGE_CACHE_PATH}" ]; then
+        echo "Create cache path: ${VM__INCOMPLETE_IMAGE_CACHE_PATH}"
+        mkdir -p "${VM__INCOMPLETE_IMAGE_CACHE_PATH}"
+    fi
+    if [ ! -d "${VM__READY_IMAGE_CACHE_PATH}" ]; then
+        echo "Create cache path: ${VM__READY_IMAGE_CACHE_PATH}"
+        mkdir -p "${VM__READY_IMAGE_CACHE_PATH}"
+    fi
+
+    case ${PROTOCOL} in
+        'scp')
+            # Convert a scp URI to the 3 parameters needed by the scp command.
+            declare -a URI_PARTS=($(echo ${URL} | sed -e 's|scp://||g' | sed -e 's|:|\ |g' | sed 's|/|\ |'))
+            local SCP_HOSTNAME=${URI_PARTS[0]}
+            local SCP_PORT SCP_FILENAME
+            case ${#URI_PARTS[@]} in
+                2)
+                    SCP_PORT="22"
+                    SCP_FILENAME=${URI_PARTS[1]}
+                    ;;
+                3)
+                    SCP_PORT=${URI_PARTS[1]}
+                    SCP_FILENAME=${URI_PARTS[2]}
+                    ;;
+            esac
+            local SCP_HOSTNAME=${URI_PARTS[0]}
+            scp -P ${SCP_PORT} "${SCP_HOSTNAME}:/${SCP_FILENAME}" "${TEMPORARY_IMAGE_FILENAME}" && DOWNLOAD_COMPLETE=1
+            #echo scp -B -P ${SCP_PORT} "${SCP_HOSTNAME}:/${SCP_FILENAME} ${VM__INCOMPLETE_IMAGE_CACHE_PATH}/" && DOWNLOAD_COMPLETE=1
+            ;;
+        'default')
+            echo "Protocol not supported: ${PROTOCOL}"
+            exit 1
+            ;;
+    esac
+
+    if [ ${DOWNLOAD_COMPLETE} -eq 1 ]; then
+        echo "Download successful."
+        mv ${TEMPORARY_IMAGE_FILENAME} ${READY_IMAGE_FILENAME}
+    fi
+}
+
+function vm__create_from_prebuild()
+{
+    local VM_NAME=${1}
+    local PREBUILD_VM_NAME=${2}
+    local DOWNLOAD_LINE=$(cat ${VM__PREBUILD_DOWNLOAD_LIST_FILE} | grep -v '^\ *#' | tr -s ' ' | egrep "${PREBUILD_VM_NAME}")
+    local URL="$(echo ${DOWNLOAD_LINE} | cut -f 2 -d ' ')"
+    local FILE_SUFFIX=$(echo ${URL} | sed -s 's/^.*\.//g')
+    local BASE64_URL="$(echo ${URL} | base64 -w 0)"
+    local READY_IMAGE_FILENAME="${VM__READY_IMAGE_CACHE_PATH}/${BASE64_URL}"
+    local DECOMPRESSED_IMAGE_FILENAME="${READY_IMAGE_FILENAME}.decompressed"
+    local CHECKSUM="$(echo ${DOWNLOAD_LINE} | cut -f 3 -d ' ')"
+
+    # echo "VM_NAME:                  ${VM_NAME}"
+    # echo "PREBUILD_VM_NAME:         ${PREBUILD_VM_NAME}"
+    # echo "DOWNLOAD_LINE:            ${DOWNLOAD_LINE}"
+    # echo "URL:                      ${URL}"
+    # echo "FILE_SUFFIX:              ${FILE_SUFFIX}"
+    # echo "CHECKSUM:                 ${CHECKSUM}"
+
+    if [ -r ${DECOMPRESSED_IMAGE_FILENAME} ]; then
+        echo "Image already in download cache. Skip download."
+    else
+        vm__download_prebuild_to_cache ${URL}
+        case ${FILE_SUFFIX} in
+            'qcow2')
+                mv "${DECOMPRESSED_IMAGE_FILENAME}" "${DECOMPRESSED_IMAGE_FILENAME}"
+                ;;
+            'xz')
+                echo "Is XZ compressed file. Decompressing QEMU image..."
+                cat "${READY_IMAGE_FILENAME}" | xzcat -d > "${DECOMPRESSED_IMAGE_FILENAME}"
+                ;;
+            *)
+                echo "Don't know how to handle file extension: ${FILE_SUFFIX}"
+                ;;
+        esac
+    fi
+
+    cp --reflink=auto "${DECOMPRESSED_IMAGE_FILENAME}" "${VM_NAME}"
 }
 
 # Create a new QEMU image of the format
