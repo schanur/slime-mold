@@ -1,4 +1,6 @@
 #!/bin/bash
+
+set -o errexit -o nounset -o pipefail
 SCRIPT_DIR=$(dirname $0)
 . ${SCRIPT_DIR}/lockfile.sh
 
