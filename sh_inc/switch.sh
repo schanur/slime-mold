@@ -2,16 +2,15 @@
 function switch__start
 {
     local VDE_SWITCH_NAME
+    local SWITCH_RUNNING
 
     VDE_SWITCH_NAME=$1
 
-    switch__status ${VDE_SWITCH_NAME}
-    SWITCH_RUNNING=${?}
-    if [ "${SWITCH_RUNNING}" != "1" ]; then
+    SWITCH_RUNNING=$(switch__status ${VDE_SWITCH_NAME})
+    if [ "${SWITCH_RUNNING}" = "Online" ]; then
         echo "Switch ${VDE_SWITCH_NAME} is already running."
         exit 1
     fi
-
     vde_switch --daemon --sock /tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME} --mgmt /tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}.mgmt
     # TODO: Find a way to sync only the files we have created.
     sync
@@ -27,9 +26,8 @@ function switch__stop
 
     VDE_SWITCH_NAME=${1}
 
-    switch__status ${VDE_SWITCH_NAME}
-    SWITCH_RUNNING=${?}
-    if [ "${SWITCH_RUNNING}" != "0" ]; then
+    SWITCH_RUNNING=$(switch__status ${VDE_SWITCH_NAME})
+    if [ "${SWITCH_RUNNING}" = "Offline" ]; then
         echo "Switch ${VDE_SWITCH_NAME} is not running."
         exit 1
     fi
@@ -50,16 +48,16 @@ function switch__console
     unixterm /tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}.mgmt
 }
 
-# Return values:
-# 0) switch is running
-# 1) Switch is not running
+# Prints status string "Online" or "Offline"
 function switch__status
 {
-    local PID_LINE_CNT=$(ps aux |grep "vde_switch" |grep -c "/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}")
+    local STATUS_STR="Online"
+    local PID_LINE_CNT=$(ps aux | grep "vde_switch" | grep -c "/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}")
     if [ "${PID_LINE_CNT}" != "1" ]; then
-        return 1
+        echo "Offline"
     fi
-    return 0
+
+    echo ${STATUS_STR}
 }
 
 # Print a list of all running switches.
@@ -68,12 +66,13 @@ function switch__list
     local VDE_SWITCH_NAME
 
     for VDE_SWITCH_NAME in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__switch__*.mgmt"); do
-        echo ${VDE_SWITCH_NAME} |sed "s|/tmp/${PROGRAM_SHORT_NAME}__switch__||g" |sed 's|\.mgmt||g'
+        echo ${VDE_SWITCH_NAME} | sed "s|/tmp/${PROGRAM_SHORT_NAME}__switch__||g" | sed 's|\.mgmt||g'
     done
 }
 
 # Connect 2 VDE switch instances.
 function switch__connect_to_switch
 {
+    echo "Not implemented yet"
     exit 1
 }

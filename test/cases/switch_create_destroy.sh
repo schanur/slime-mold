@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -o errexit -o nounset -o pipefail
 
 SCRIPT_DIR=$(dirname $0)
 . ${SCRIPT_DIR}/../shared_bash/fail.sh
