@@ -1,4 +1,6 @@
 #!/bin/bash
+
+set -o errexit -o nounset -o pipefail
 SCRIPT_DIR=$(dirname $0)
 . ${SCRIPT_DIR}/lockfile.sh
 
@@ -28,12 +30,12 @@ fi
 
 #QEMU_CMD="qemu ${HW_ACCELERATION_STR} -m 64 -hda ${IMAGE_FILE} -net nic,macaddr=${UMODE_NIC_MAC_ADDR} -net user,net=10.0.2.0/24,dhcpstart=${VM_IP},hostfwd=tcp::${VM_SSH_PORT}-:22 -net nic,macaddr=${VDE_NIC_MAC_ADDR} -net vde,sock=/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}"
 
-QEMU_CMD="qemu "                 \
-        "${HW_ACCELERATION_STR}" \
-        "-m 64"                  \
-        "-hda ${IMAGE_FILE}"     \
-        "-net nic,macaddr=${UMODE_NIC_MAC_ADDR},vlan=${VM_VLAN} -net user,net=10.0.2.0/24,dhcpstart=${VM_IP},hostfwd=tcp::${VM_SSH_PORT}-:22,vlan=${VM_VLAN}" \
-        "-net nic,macaddr=${VDE_NIC_MAC_ADDR} -net vde,sock=/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}"
+QEMU_CMD="qemu "                                             \
+        "${HW_ACCELERATION_STR} "                            \
+        "-m 128 "                                            \
+        "-drive file=${IMAGE_FILE},cache=unsafe,discard=on " \
+        "-net nic,macaddr=${UMODE_NIC_MAC_ADDR},vlan=${VM_VLAN} -net user,net=10.0.2.0/24,dhcpstart=${VM_IP},hostfwd=tcp::${VM_SSH_PORT}-:22,vlan=${VM_VLAN} " \
+        "-net nic,macaddr=${VDE_NIC_MAC_ADDR} -net vde,sock=/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME} "
 
 echo "VM name:      ${VM_NAME}"
 echo "Image file:   ${IMAGE_FILE}"

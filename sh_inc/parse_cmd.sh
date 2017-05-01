@@ -19,6 +19,9 @@ function usage()
 #   echo "${PROGRAM_SHORT_NAME} cable     add                     SWITCH_NAME_1 SWITCH_NAME_2"
 #   echo "${PROGRAM_SHORT_NAME} cable     remove                  SWITCH_NAME_1 SWITCH_NAME_2"
     echo
+    echo "${PROGRAM_SHORT_NAME} vm        list_prebuild"
+    # TODO: Unify name schema. name vs. filename vs vm_image.
+    echo "${PROGRAM_SHORT_NAME} vm        create_from_prebuild    VM_IMAGE      PREBUILD_NAME"
     echo "${PROGRAM_SHORT_NAME} vm        create_new              VM_IMAGE"
     echo "${PROGRAM_SHORT_NAME} vm        create_overlay          VM_IMAGE      VM_BASE_IMAGE"
     echo "${PROGRAM_SHORT_NAME} vm        start                   VM_IMAGE      SWITCH_NAME"
@@ -36,7 +39,7 @@ function usage()
     echo
 }
 
- 
+
 function invalid_params()
 {
     usage
@@ -47,7 +50,7 @@ function invalid_params()
 }
 
 # Make some basic checks on the parameters
-# given by the user. 
+# given by the user.
 function expected_param()
 {
     local ARGS=${1}
@@ -75,105 +78,113 @@ function parse_cmd()
     local SUB_ACTION=${2}
 
     shift 2
-    
+
     if   [ "${ACTION}" = "appliance" ]; then
-        
-        if   [ "${SUB_ACTION}" = "start" ];           then
+
+        if   [ "${SUB_ACTION}" = "start" ];                then
             expected_param ${#} 1
             appliance__start ${1}
-            
-        elif [ "${SUB_ACTION}" = "stop" ];            then
+
+        elif [ "${SUB_ACTION}" = "stop" ];                 then
             expected_param ${#} 1
             appliance__stop ${1}
-            
+
         else
             invalid_params "No valid sub action selected for action \"${ACTION}\"."
         fi
     elif [ "${ACTION}" = "switch" ]; then
-        
-        if   [ "${SUB_ACTION}" = "start" ];           then
+
+        if   [ "${SUB_ACTION}" = "start" ];                then
             expected_param ${#} 1
             switch__start ${1}
-            
-        elif [ "${SUB_ACTION}" = "stop" ];            then
+
+        elif [ "${SUB_ACTION}" = "stop" ];                 then
             expected_param ${#} 1
             switch__stop ${1}
-            
-        #elif [ "${SUB_ACTION}" = "status" ];         then
+
+        #elif [ "${SUB_ACTION}" = "status" ];              then
         #    expected_param ${#} 1
         #       echo "switch__status"
-            
-        elif [ "${SUB_ACTION}" = "console" ];         then
+
+        elif [ "${SUB_ACTION}" = "console" ];              then
             expected_param ${#} 1
             switch__console ${1}
-            
-        elif [ "${SUB_ACTION}" = "list" ];            then
+
+        elif [ "${SUB_ACTION}" = "list" ];                 then
             expected_param ${#} 0
             switch__list
-            
+
         else
             invalid_params "No valid sub action selected for action \"${ACTION}\"."
         fi
     elif [ "${ACTION}" = "vm" ];     then
-        
-        if   [ "${SUB_ACTION}" = "create_new" ];      then
+
+        if   [ "${SUB_ACTION}" = "list_prebuild" ];        then
+            expected_param ${#} 0
+            vm__list_prebuild
+
+        elif [ "${SUB_ACTION}" = "create_from_prebuild" ]; then
+            expected_param ${#} 2
+            vm__create_from_prebuild "${1}" "${2}"
+
+        elif [ "${SUB_ACTION}" = "create_new" ];           then
             expected_param ${#} 1
             vm__create_new "${1}"
-            
-        elif [ "${SUB_ACTION}" = "create_overlay" ];  then
+
+        elif [ "${SUB_ACTION}" = "create_overlay" ];       then
             expected_param ${#} 2
             vm__create_overlay "${1}" "${2}"
-            
-        elif [ "${SUB_ACTION}" = "start" ];           then
+
+        elif [ "${SUB_ACTION}" = "start" ];                then
             expected_param ${#} 2
             vm__start "${1}" ${2}
-            
-        elif [ "${SUB_ACTION}" = "stop" ];            then
+
+        elif [ "${SUB_ACTION}" = "stop" ];                 then
             expected_param ${#} 1
             vm__stop ${1}
-            
-        elif [ "${SUB_ACTION}" = "log" ];             then
+
+        elif [ "${SUB_ACTION}" = "log" ];                  then
             expected_param ${#} 1
             vm__log ${1}
-            
-        elif [ "${SUB_ACTION}" = "status" ];          then
+
+        elif [ "${SUB_ACTION}" = "status" ];               then
             expected_param ${#} 1
             vm__status ${1}
-            
-        elif [ "${SUB_ACTION}" = "list" ];            then
+
+        elif [ "${SUB_ACTION}" = "list" ];                 then
             expected_param ${#} 0
             vm__list
-            
+
         else
             invalid_params "No valid sub action selected for action \"${ACTION}\"."
         fi
     elif [ "${ACTION}" = "ssh" ];    then
-        
-        if   [ "${SUB_ACTION}" = "install_key" ];     then
+
+        if   [ "${SUB_ACTION}" = "install_key" ];          then
             expected_param ${#} 1
             echo "ssh__install"
-            
-        elif [ "${SUB_ACTION}" = "send" ];            then
+
+        elif [ "${SUB_ACTION}" = "send" ];                 then
             expected_param ${#} 3
             ssh__send "${1}" "${2}" "${3}"
-            
-        elif [ "${SUB_ACTION}" = "receive" ];         then
+
+        elif [ "${SUB_ACTION}" = "receive" ];              then
             expected_param ${#} 3
             ssh__receive "${1}" "${2}" "${3}"
-            
-        elif [ "${SUB_ACTION}" = "exec" ];            then
+
+        elif [ "${SUB_ACTION}" = "exec" ];                 then
             #expected_param ${#} 2
             ssh__exec $*
-            
-        elif [ "${SUB_ACTION}" = "login" ];           then
+
+        elif [ "${SUB_ACTION}" = "login" ];                then
             expected_param ${#} 1
             ssh__login $1
-            
+
         else
             invalid_params "No valid sub action selected for action \"${ACTION}\"."
         fi
-    else 
+    else
         invalid_params "\"${ACTION}\" is no valid action."
     fi
-    
+
 }

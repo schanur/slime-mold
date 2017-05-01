@@ -1,6 +1,6 @@
 #!/bin/bash
 # TODO: check why "set -e" does not work.
-set -uo pipefail
+set -o errexit -o nounset -o pipefail
 
 PROGRAM_NAME="Slime Mold"
 PROGRAM_SHORT_NAME="sm"
