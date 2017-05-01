@@ -7,7 +7,7 @@ SSH__VM_USERNAME=$(whoami)
 SSH__CONNECT_TIMEOUT=5
 
 # TODO: Abort if an ssh kay pair was already created.
-function ssh__create_key()
+function ssh__create_key
 {
     echo "ssh__create_key"
     ssh-keygen -q -f ssh_conf/id_rsa -N ""
@@ -15,7 +15,7 @@ function ssh__create_key()
 
 # Check if an RSA key, which is used to login into the
 # virtual maschines without a password, was already created.
-function ssh__login_key_exists()
+function ssh__login_key_exists
 {
     if [ ! -f ssh_conf/id_rsa ]; then
         return 0
@@ -31,7 +31,7 @@ function ssh__login_key_exists()
 # Parameter:
 # 1. Source (file/directory on local file system)
 # 2. Target (path/filename in VM filesystem)
-function ssh__send()
+function ssh__send
 {
     local VM_NAME=${1}
     local SOURCE=${2}
@@ -60,7 +60,7 @@ function ssh__send()
 # Parameter:
 # 1. Source (path/filename in VM filesystem)
 # 2. Target (path/filename on local file system)
-function ssh__receive()
+function ssh__receive
 {
     local VM_NAME=${1}
     local SOURCE=${2}
@@ -73,7 +73,7 @@ function ssh__receive()
 
 # Install a preshared key in a VM to allow
 # login without passwort.
-function ssh__install_key()
+function ssh__install_key
 {
     local VM_NAME
 
@@ -87,7 +87,7 @@ function ssh__install_key()
 }
 
 # Login into a VM.
-function ssh__login()
+function ssh__login
 {
     local VM_NAME
 
@@ -97,7 +97,7 @@ function ssh__login()
 }
 
 # Run a command in the virtual maschine.
-function ssh__exec()
+function ssh__exec
 {
     local ERR
     local VM_NAME
@@ -118,7 +118,7 @@ function ssh__exec()
 ########################################################################
 
 # Get the used TCP redirection port for the vm name.
-function ssh__vm_name_2_ssh_port()
+function ssh__vm_name_2_ssh_port
 {
     local LOCKFILE_NAME_PARTIAL
     local CURR_PORT

@@ -1,4 +1,4 @@
-function close_remaining_sm_resources() {
+function close_remaining_sm_resources {
     local SWITCH
 
     for SWITCH in $(${SM_PROGRAM} switch list); do
@@ -9,13 +9,13 @@ function close_remaining_sm_resources() {
 
 }
 
-function fail() {
+function fail {
     echo -e ${1}
     close_remaining_sm_resources
     exit 1
 }
 
-function fail_show_result() {
+function fail_show_result {
     echo ${1}
     echo "Result:          ${2}"
     echo "Expected result: ${3}"

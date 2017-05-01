@@ -1,5 +1,5 @@
 # Create a new virtual switch.
-function switch__start()
+function switch__start
 {
     local VDE_SWITCH_NAME
 
@@ -18,7 +18,7 @@ function switch__start()
 }
 
 # Shutdown a switch
-function switch__stop()
+function switch__stop
 {
     local VDE_SWITCH_NAME
     local SWITCH_RUNNING
@@ -42,7 +42,7 @@ function switch__stop()
 }
 
 # Login into the terminal of the switch.
-function switch__console()
+function switch__console
 {
     local VDE_SWITCH_NAME
 
@@ -53,7 +53,7 @@ function switch__console()
 # Return values:
 # 0) switch is running
 # 1) Switch is not running
-function switch__status()
+function switch__status
 {
     local PID_LINE_CNT=$(ps aux |grep "vde_switch" |grep -c "/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}")
     if [ "${PID_LINE_CNT}" != "1" ]; then
@@ -63,7 +63,7 @@ function switch__status()
 }
 
 # Print a list of all running switches.
-function switch__list()
+function switch__list
 {
     local VDE_SWITCH_NAME
 
@@ -73,7 +73,7 @@ function switch__list()
 }
 
 # Connect 2 VDE switch instances.
-function switch__connect_to_switch()
+function switch__connect_to_switch
 {
     exit 1
 }

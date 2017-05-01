@@ -1,4 +1,4 @@
-function test__switch_start_checked() {
+function test__switch_start_checked {
     # local SM_PROGRAM=$1
     local TEST_PATH_PREFIX=$1
     local TEST_SWITCH_NAME=$2
@@ -8,7 +8,7 @@ function test__switch_start_checked() {
     test   -S ${TEST_PATH_PREFIX}${TEST_SWITCH_NAME}/ctl  || fail "No switch control socket found."
 }
 
-function test__switch_stop_checked() {
+function test__switch_stop_checked {
     # local SM_PROGRAM=$1
     local TEST_PATH_PREFIX=$1
     local TEST_SWITCH_NAME=$2

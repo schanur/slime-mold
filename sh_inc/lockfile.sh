@@ -15,7 +15,7 @@ LF__LOCKFILE_NAME="" # Used by lf__lockfile_name_*()
 # Create the filename of the lockfile by 2 parameters.
 # 1. SSH port
 # 2. VM name
-function lf__lockfile_name__virtual_machine()
+function lf__lockfile_name__virtual_machine
 {
     local SSH_REDIRECT_PORT=${1}
     local VM_NAME=${2}
@@ -25,7 +25,7 @@ function lf__lockfile_name__virtual_machine()
 
 # Create a lockfile with the path/name
 # of the parameter $1.
-function lf__create_lockfile()
+function lf__create_lockfile
 {
     local ERR
     local LOCKFILE_NAME=$*
@@ -45,7 +45,7 @@ function lf__create_lockfile()
 
 # Delete the lockfile with the path/name
 # of the parameter $1.
-function lf__destroy_lockfile()
+function lf__destroy_lockfile
 {
     LOCKFILE_NAME=$1
     if [ -f ${LOCKFILE_NAME} ]; then
@@ -57,7 +57,7 @@ function lf__destroy_lockfile()
     fi
 }
 
-function lf__destroy_lockfile_list()
+function lf__destroy_lockfile_list
 {
     local LOCKFILE
 
@@ -110,7 +110,7 @@ function lf__unlock_global()
 
 
 # # Create a lockfile with the path/name
-# # of the parameter $1. 
+# # of the parameter $1.
 # function create_lockfile() {
 #     local LOCKFILE=$*
 #     echo ${LOCKFILE}
@@ -125,7 +125,7 @@ function lf__unlock_global()
 
 #     # make sure the lockfile is removed when we exit and then claim it
 #     #trap "rm -f ${LOCKFILE}; exit" INT TERM EXIT
-    
+
 #     echo $$ > ${LOCKFILE}
 # }
 

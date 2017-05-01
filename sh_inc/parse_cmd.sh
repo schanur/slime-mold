@@ -1,4 +1,4 @@
-function usage()
+function usage
 {
     echo
     echo "${PROGRAM_NAME} usage:"
@@ -40,7 +40,7 @@ function usage()
 }
 
 
-function invalid_params()
+function invalid_params
 {
     usage
     if [ "${1}" != "" ]; then
@@ -51,7 +51,7 @@ function invalid_params()
 
 # Make some basic checks on the parameters
 # given by the user.
-function expected_param()
+function expected_param
 {
     local ARGS=${1}
     local MIN_ARGS=${2}
@@ -67,7 +67,7 @@ function expected_param()
     fi
 }
 
-function parse_cmd()
+function parse_cmd
 {
     if [ "$#" = "0" -o "$#" = "1" ]; then
         invalid_params "Too few arguments."

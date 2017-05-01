@@ -7,7 +7,7 @@ APPLIANCE__TEST_CMD_LIST_LENGTH=0
 declare -a APPLIANCE__ARRAY
 APPLIANCE__ARRAY_LENGTH=0
 
-function appliance__start()
+function appliance__start
 {
     local APPLIANCE_FILE=${1}
     local APPLIANCE_FILE_MALFORMED
@@ -27,7 +27,7 @@ function appliance__start()
 
 }
 
-function appliance__stop()
+function appliance__stop
 {
     echo "appliance__stop"
     exit 1
@@ -35,15 +35,15 @@ function appliance__stop()
 
 #function appliance__()
 
-function appliance__read_file_sections()
+function appliance__read_file_sections
 {
     local LINE
 
     exit 1
 }
 
-# 
-function appliance__check_file_syntax()
+#
+function appliance__check_file_syntax
 {
     local APPLIANCE_FILE=${1}
 
@@ -61,8 +61,8 @@ function appliance__check_file_syntax()
     fi
 }
 
-# 
-function appliance__watchdog()
+#
+function appliance__watchdog
 {
     echo "appliance__watchdog"
     exit 1
@@ -71,7 +71,7 @@ function appliance__watchdog()
 # Check if VM is online. If it is not
 # online, start the VM and block until
 # the VM is online.
-function appliance__get_vm_online()
+function appliance__get_vm_online
 {
     local VM_NAME
 
@@ -80,17 +80,17 @@ function appliance__get_vm_online()
     echo "appliance__get_vm_online"
 }
 
-# Stop the VM and block until it is 
-# offline. 
-function appliance__get_vm_offline()
+# Stop the VM and block until it is
+# offline.
+function appliance__get_vm_offline
 {
     echo "appliance__get_vm_offline"
     exit 1
 }
 
-function appliance__get_all_online()
+function appliance__get_all_online
 {
-    
+
     echo "appliance__get_all_online"
     #array2="${array1[@]}"
     #APPLIANCE__TEST_CMD_LIST="${SETUP[@]}"
@@ -99,7 +99,7 @@ function appliance__get_all_online()
     exit 1
 }
 
-function appliance__list_2_array()
+function appliance__list_2_array
 {
     echo "appliance__list_2_array"
     #local LIST=${*}
@@ -114,7 +114,7 @@ function appliance__list_2_array()
     (( --LIST_CMD_CNT ))
     for LIST_CMD_NO in $(seq 0 ${LIST_CMD_CNT}); do
         echo ${APPLIANCE__TEST_CMD_LIST[${LIST_CMD_NO}]}
-        echo 
+        echo
         #echo ${CMD}
     done
 
@@ -127,12 +127,13 @@ function appliance__list_2_array()
 # files are compatible with bash sytax. Therefore we can execute
 # the appliance files directly.
 
-function section()
+function section
 {
     echo "section found: $*"
 }
 
-function myc()
+# TODO: What is this about???
+function myc
 {
     local ERR
     local CMD=${*}
