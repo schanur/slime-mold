@@ -1,7 +1,8 @@
 # Globals
 #VM__RUNNING_VM_LIST=""
+VM__HW_ACCELERATION=""
 VM__FOUND_PID=""
-VM__FOUND_FREE_PORT=""
+VM__FOUND_FREE_PORT_GROUP=""
 VM__FOUND_FREE_IP=""
 VM__FOUND_FREE_VLAN=""
 VM__UNIQUE_MAC_ADDR=""
@@ -19,7 +20,8 @@ VM__PREBUILD_DOWNLOAD_LIST_FILE="${SCRIPT_DIR}/data/vm_creation/download_prebuil
 function vm__check_kvm_extension
 {
     local CPU_FLAGS_FOUND
-    local HW_ACCELERATION=0
+
+    VM__HW_ACCELERATION=1
 
     # Check required flags in the CPU extension list.
     CPU_FLAGS_FOUND=$(cat /proc/cpuinfo |grep vme |grep -c vmx)
@@ -35,20 +37,19 @@ function vm__check_kvm_extension
                 echo "Hardware acceleration check: User has no permission to start hardware accelerated quests. Write permission on /dev/kvm missing"
             else
                 # Everything is fine.
-                HW_ACCELERATION=1
+                VM__HW_ACCELERATION=1
             fi
         fi
     fi
 
-    if [ "${HW_ACCELERATION}" = "0" ]; then
+    if [ "${VM__HW_ACCELERATION}" = "0" ]; then
         echo "No usable configuration for hardware acceleration found. Software emulation is used instead."
     fi
-
-    return ${HW_ACCELERATION}
 }
 
-# Find a free TCP port in the range of 12201 - 12299 on the host.
-function vm__find_free_tcp_port
+# Find a free TCP port group (4 continuous ports) in the range of 12201 - 12299 on the host.
+# It returns the first port number of the group.
+function vm__find_free_tcp_port_group
 {
     local PORT
     local PORT_FREE
@@ -57,31 +58,41 @@ function vm__find_free_tcp_port
     local FREE_PORT_FOUND
     local FOUND_IN_LOCKFILE
 
+    local PORT_GROUP_SIZE=4
+
     FREE_PORT_FOUND=0
 
     # Get a list of all listening ports from the OS.
-    PORTS_IN_USE=$(netstat -nl --protocol=inet |grep LISTEN |sed 's/ \+\ /\ /g' |cut -d " " -f 4 |sed 's/.*://g' |grep "122")
+    PORTS_IN_USE=$(netstat -nl --protocol=inet |grep LISTEN |sed 's/ \+\ /\ /g' |cut -d " " -f 4 |sed 's/.*://g' |grep "122" || true)
 
-    for PORT in $(seq 12201 12299); do
+    for PORT_GROUP_START in $(seq 12200 ${PORT_GROUP_SIZE} 12280); do
+        echo "PORT_GROUP_START: ${PORT_GROUP_START}"
         # Skip testing ports that are marked as already listening.
         PORT_IN_USE=0
         for USED_PORT in ${PORTS_IN_USE}; do
-            if [ "${PORT}" = "${USED_PORT}" ]; then
-                PORT_IN_USE=1
-                break
-            fi
+            echo "USED_PORT:        ${USED_PORT}"
+            seq ${PORT_GROUP_START} $(( (PORT_GROUP_START + PORT_GROUP_SIZE) - 1 ))
+            for PORT in $(seq ${PORT_GROUP_START} (( (PORT_GROUP_START + PORT_GROUP_SIZE) - 1 ))); do
+                echo "PORT:             ${PORT}"
+                if [ "${PORT}" = "${USED_PORT}" ]; then
+                    PORT_IN_USE=1
+                    break
+                fi
+            done
         done
         if [ "${PORT_IN_USE}" = "1" ]; then
             continue
         fi
+
         # We found a free port by looking into the netstat table.
         # We also check that the port doesn't occur in the lockfiles.
-        FOUND_IN_LOCKFILE=$(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__${PORT}__*.lock" |wc -l)
+        # Maybe this is redundant.
+        FOUND_IN_LOCKFILE=$(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__${PORT_GROUP_START}__*.lock" |wc -l)
         if [ "${FOUND_IN_LOCKFILE}" != "0" ]; then
-            echo "Warning! TCP port ${PORT} is not listening, but lockfile exists."
+            echo "Warning! TCP port ${PORT_GROUP_START} is not listening, but lockfile exists."
             continue
         fi
-        VM__FOUND_FREE_PORT=${PORT}
+        VM__FOUND_FREE_PORT_GROUP=${PORT_GROUP_START}
         return
     done
     echo "All TCP ports in the range 12201-12299 are in use"
@@ -205,11 +216,11 @@ function vm__start
     local VM_NAME
     local VM_RUNNING
     local VM_SSH_PORT
+    local VM_SPICE_PORT
     local VM_IP
     local VM_VLAN
     local LOCKFILE_VM
     local HW_ACCELERATION
-
 
     VM_NAME=$(vm__image_file_2_vm_name ${IMAGE_FILE})
 
@@ -226,12 +237,14 @@ function vm__start
     vm__unique_mac ${VM_NAME} "vde"
     VDE_NIC_MAC_ADDR=${VM__UNIQUE_MAC_ADDR}
 
-    vm__find_free_tcp_port
-    VM_SSH_PORT=${VM__FOUND_FREE_PORT}
+    vm__find_free_tcp_port_group
+    VM_SSH_PORT=${VM__FOUND_FREE_PORT_GROUP}
+    VM_SPICE_PORT=$(( VM__FOUND_FREE_PORT_GROUP + 1 ))
 
     vm__find_free_ip
     VM_IP=${VM__FOUND_FREE_IP}
 
+    # FIXME: vm__find_free call prints value to stdout
     vm__find_free_vlan
     VM_VLAN=${VM__FOUND_FREE_VLAN}
     echo ${VM_VLAN}
@@ -240,9 +253,35 @@ function vm__start
     LOCKFILE_VM=${LF__LOCKFILE_NAME}
 
     vm__check_kvm_extension
-    HW_ACCELERATION=${?}
+    HW_ACCELERATION=${VM__HW_ACCELERATION}
 
-    nohup bash sh_inc/async_qemu.sh ${IMAGE_FILE} ${VM_SSH_PORT} ${UMODE_NIC_MAC_ADDR} ${VDE_NIC_MAC_ADDR} ${VDE_SWITCH_NAME} ${LOCKFILE_VM} ${HW_ACCELERATION} ${VM_NAME} ${VM_IP} ${VM_VLAN} > ${LOCKFILE_VM}.log 2>&1&
+    echo "PROGRAM_SHORT_NAME: ${PROGRAM_SHORT_NAME}"
+    echo "VM_RUNNING:         ${VM_RUNNING}"
+    echo "UMODE_NIC_MAC_ADDR: ${UMODE_NIC_MAC_ADDR}"
+    echo "VDE_NIC_MAC_ADDR:   ${VDE_NIC_MAC_ADDR}"
+    echo "VM_SSH_PORT:        ${VM_SSH_PORT}"
+    echo "VM_SPICE_PORT:      ${VM_SPICE_PORT}"
+    echo "VM_IP:              ${VM_IP}"
+    echo "VM_VLAN:            ${VM_VLAN}"
+    echo "LOCKFILE_VM:        ${LOCKFILE_VM}"
+    echo "HW_ACCELERATION:    ${HW_ACCELERATION}"
+
+    #  ${PROGRAM_SHORT_NAME} ${IMAGE_FILE} ${VM_SSH_PORT} ${UMODE_NIC_MAC_ADDR} ${VDE_NIC_MAC_ADDR} ${VDE_SWITCH_NAME} ${LOCKFILE_VM} ${HW_ACCELERATION} ${VM_NAME} ${VM_IP} ${VM_VLAN}
+
+    nohup bash $(dirname $(which sm))/sh_inc/async_qemu.sh \
+          ${PROGRAM_SHORT_NAME} \
+          ${IMAGE_FILE} \
+          ${VM_SSH_PORT} \
+          ${VM_SPICE_PORT} \
+          ${UMODE_NIC_MAC_ADDR} \
+          ${VDE_NIC_MAC_ADDR} \
+          ${VDE_SWITCH_NAME} \
+          ${LOCKFILE_VM} \
+          ${HW_ACCELERATION} \
+          ${VM_NAME} \
+          ${VM_IP} \
+          ${VM_VLAN} \
+          > ${LOCKFILE_VM}.log 2>&1 &
 }
 
 # Stop the VM by sending the "halt" command
