@@ -12,7 +12,7 @@ VM__USED_VLAN_LIST=""
 VM__INCOMPLETE_IMAGE_CACHE_PATH="${HOME}/.cache/slime-mold/prebuild/incomplete"
 VM__READY_IMAGE_CACHE_PATH="${HOME}/.cache/slime-mold/prebuild/ready"
 
-VM__PREBUILD_DOWNLOAD_LIST_FILE="${SCRIPT_DIR}/data/vm_creation/download_prebuild"
+VM__PREBUILD_DOWNLOAD_LIST_FILE="${SCRIPT_PATH}/data/vm_creation/download_prebuild"
 
 # Check if OS has hardware virtualization
 # support. If OS supports KVM, return 1.

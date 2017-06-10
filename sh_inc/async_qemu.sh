@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # set -o errexit -o nounset -o pipefail
-SCRIPT_DIR=$(dirname $0)
-# . ${SCRIPT_DIR}/lockfile.sh
+SCRIPT_PATH=$(dirname $0)
+# . ${SCRIPT_PATH}/lockfile.sh
 
 PROGRAM_SHORT_NAME=${1}
 IMAGE_FILE=${2}

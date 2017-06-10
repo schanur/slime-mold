@@ -1,18 +1,21 @@
 #!/bin/bash
 # TODO: check why "set -e" does not work.
 set -o errexit -o nounset -o pipefail
+trap stack_trace ERR
 
 PROGRAM_NAME="Slime Mold"
 PROGRAM_SHORT_NAME="sm"
 
-SCRIPT_DIR=$(dirname $0)
-INCLUDE_DIR="${SCRIPT_DIR}/sh_inc"
-. ${INCLUDE_DIR}/lockfile.sh
-. ${INCLUDE_DIR}/parse_cmd.sh
-. ${INCLUDE_DIR}/appliance.sh
-. ${INCLUDE_DIR}/switch.sh
-. ${INCLUDE_DIR}/vm.sh
-. ${INCLUDE_DIR}/ssh.sh
+SCRIPT_PATH="$(dirname "${0}")"
+
+INCLUDE_PATH="${SCRIPT_PATH}/sh_inc"
+source "${INCLUDE_PATH}/lockfile.sh"
+source "${INCLUDE_PATH}/parse_cmd.sh"
+source "${INCLUDE_PATH}/appliance.sh"
+source "${INCLUDE_PATH}/switch.sh"
+source "${INCLUDE_PATH}/vm.sh"
+source "${INCLUDE_PATH}/ssh.sh"
+
 
 ERR=0
 if [ "${?}" != "0" ]; then

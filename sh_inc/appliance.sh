@@ -18,7 +18,7 @@ function appliance__start
     appliance__check_file_syntax ${APPLIANCE_FILE}
 
     # Run appliance file.
-    . ${SCRIPT_DIR}/${APPLIANCE_FILE}
+    . ${SCRIPT_PATH}/${APPLIANCE_FILE}
 
     appliance__get_all_online
 
