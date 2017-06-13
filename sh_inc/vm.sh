@@ -58,29 +58,35 @@ function vm__find_free_tcp_port_group
     local FREE_PORT_FOUND
     local FOUND_IN_LOCKFILE
 
+    local PORT_GROUP_END
     local PORT_GROUP_SIZE=4
 
     FREE_PORT_FOUND=0
 
     # Get a list of all listening ports from the OS.
     PORTS_IN_USE=$(netstat -nl --protocol=inet |grep LISTEN |sed 's/ \+\ /\ /g' |cut -d " " -f 4 |sed 's/.*://g' |grep "122" || true)
-
+    echo "Ports in use: ${PORTS_IN_USE}"
     for PORT_GROUP_START in $(seq 12200 ${PORT_GROUP_SIZE} 12280); do
         echo "PORT_GROUP_START: ${PORT_GROUP_START}"
         # Skip testing ports that are marked as already listening.
         PORT_IN_USE=0
-        for USED_PORT in ${PORTS_IN_USE}; do
-            echo "USED_PORT:        ${USED_PORT}"
-            seq ${PORT_GROUP_START} $(( (PORT_GROUP_START + PORT_GROUP_SIZE) - 1 ))
-            for PORT in $(seq ${PORT_GROUP_START} (( (PORT_GROUP_START + PORT_GROUP_SIZE) - 1 ))); do
-                echo "PORT:             ${PORT}"
-                if [ "${PORT}" = "${USED_PORT}" ]; then
+        ((PORT_GROUP_END=(PORT_GROUP_START+PORT_GROUP_SIZE)-1))
+        for PORT in $(seq ${PORT_GROUP_START} ${PORT_GROUP_END}); do
+            case $(echo "${PORTS_IN_USE}" | grep -c ${PORT}) in
+                0)
+                    continue
+                    ;;
+                1)
                     PORT_IN_USE=1
                     break
-                fi
-            done
+                    ;;
+                *)
+                    echo "Parse error while finding free port. Abort!"
+                    exit 1
+                    ;;
+            esac
         done
-        if [ "${PORT_IN_USE}" = "1" ]; then
+        if [ ${PORT_IN_USE} -eq 1 ]; then
             continue
         fi
 
