@@ -10,6 +10,7 @@ SCRIPT_PATH="$(dirname "${0}")"
 
 INCLUDE_PATH="${SCRIPT_PATH}/sh_inc"
 source "${INCLUDE_PATH}/lockfile.sh"
+source "${INCLUDE_PATH}/check.sh"
 source "${INCLUDE_PATH}/parse_cmd.sh"
 source "${INCLUDE_PATH}/appliance.sh"
 source "${INCLUDE_PATH}/switch.sh"
@@ -22,6 +23,8 @@ if [ "${?}" != "0" ]; then
     ERR=1
     echo "exit status: ${?}"
 fi
+
+check_all_dependencies
 
 parse_cmd $*
 
