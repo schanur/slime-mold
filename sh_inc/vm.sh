@@ -9,10 +9,13 @@ VM__UNIQUE_MAC_ADDR=""
 VM__USED_IP_BYTE_LIST=""
 VM__USED_VLAN_LIST=""
 
+VM__HUB_IMAGE_LIST_DOWNLOAD_URL=
+
 VM__INCOMPLETE_IMAGE_CACHE_PATH="${HOME}/.cache/slime-mold/prebuild/incomplete"
 VM__READY_IMAGE_CACHE_PATH="${HOME}/.cache/slime-mold/prebuild/ready"
 
 VM__PREBUILD_DOWNLOAD_LIST_FILE="${SCRIPT_PATH}/data/vm_creation/download_prebuild"
+
 
 # Check if OS has hardware virtualization
 # support. If OS supports KVM, return 1.
@@ -350,26 +353,27 @@ function vm__list_prebuild
 function vm__download_prebuild_to_cache
 {
     local URL="${1}"
-    local BASE64_URL="$(echo ${URL} | base64 -w 0)"
+    # local TEMPORARY_IMAGE_FILENAME="${2}"
+    local BASE32_URL="$(echo ${URL} | base32 -w 0)"
     local PROTOCOL=$(echo ${URL} | sed -e 's/:.*//g')
     local REMOTE_BASENAME="$(echo ${URL} | sed -e 's|^./||g')"
-    local TEMPORARY_IMAGE_FILENAME="${VM__INCOMPLETE_IMAGE_CACHE_PATH}/${BASE64_URL}"
-    local READY_IMAGE_FILENAME="${VM__READY_IMAGE_CACHE_PATH}/${BASE64_URL}"
+    local TEMPORARY_IMAGE_FILENAME="${VM__INCOMPLETE_IMAGE_CACHE_PATH}/${BASE32_URL}"
+    local READY_IMAGE_FILENAME="${VM__READY_IMAGE_CACHE_PATH}/${BASE32_URL}"
     local DOWNLOAD_COMPLETE=0
 
-    # echo "URL:                      ${URL}"
-    # echo "BASE64_URL:               ${BASE64_URL}"
-    # echo "PROTOCOL:                 ${PROTOCOL}"
-    # echo "REMOTE_BASENAME:          ${REMOTE_BASENAME}"
-    # echo "TEMPORARY_IMAGE_FILENAME: ${TEMPORARY_IMAGE_FILENAME}"
-    # echo "READY_IMAGE_FILENAME:     ${READY_IMAGE_FILENAME}"
+    echo "URL:                         ${URL}"
+    echo "BASE32_URL:                  ${BASE32_URL}"
+    echo "PROTOCOL:                    ${PROTOCOL}"
+    echo "REMOTE_BASENAME:             ${REMOTE_BASENAME}"
+    echo "TEMPORARY_IMAGE_FILENAME:    ${TEMPORARY_IMAGE_FILENAME}"
+    echo "READY_IMAGE_FILENAME:        ${READY_IMAGE_FILENAME}"
 
     if [ ! -d "${VM__INCOMPLETE_IMAGE_CACHE_PATH}" ]; then
-        echo "Create cache path: ${VM__INCOMPLETE_IMAGE_CACHE_PATH}"
+        echo "Create cache path for incomplete files: ${VM__INCOMPLETE_IMAGE_CACHE_PATH}"
         mkdir -p "${VM__INCOMPLETE_IMAGE_CACHE_PATH}"
     fi
     if [ ! -d "${VM__READY_IMAGE_CACHE_PATH}" ]; then
-        echo "Create cache path: ${VM__READY_IMAGE_CACHE_PATH}"
+        echo "Create cache path for completed files:  ${VM__READY_IMAGE_CACHE_PATH}"
         mkdir -p "${VM__READY_IMAGE_CACHE_PATH}"
     fi
 
@@ -393,7 +397,10 @@ function vm__download_prebuild_to_cache
             scp -P ${SCP_PORT} "${SCP_HOSTNAME}:/${SCP_FILENAME}" "${TEMPORARY_IMAGE_FILENAME}" && DOWNLOAD_COMPLETE=1
             #echo scp -B -P ${SCP_PORT} "${SCP_HOSTNAME}:/${SCP_FILENAME} ${VM__INCOMPLETE_IMAGE_CACHE_PATH}/" && DOWNLOAD_COMPLETE=1
             ;;
-        'default')
+        'https')
+            wget -O "${TEMPORARY_IMAGE_FILENAME}" "${URL}" && DOWNLOAD_COMPLETE=1
+            ;;
+        *)
             echo "Protocol not supported: ${PROTOCOL}"
             exit 1
             ;;
@@ -405,30 +412,70 @@ function vm__download_prebuild_to_cache
     fi
 }
 
+#
+function vm__file_checksum
+{
+    local FILENAME="${1}"
+    local CHECKSUM_TYPE="${2}"
+
+    case ${CHECKSUM_TYPE} in
+        'sha256')
+            sha256sum "${FILENAME}" | cut -f 1 -d ' '
+            ;;
+        'sha512')
+            sha512sum "${FILENAME}" | cut -f 1 -d ' '
+            ;;
+        *)
+            exit 1
+            ;;
+    esac
+}
+
 function vm__create_from_prebuild
 {
     local VM_NAME="${1}"
     local PREBUILD_VM_NAME="${2}"
     local DOWNLOAD_LINE=$(cat "${VM__PREBUILD_DOWNLOAD_LIST_FILE}" | grep -v '^\ *#' | tr -s ' ' | egrep "${PREBUILD_VM_NAME}")
     local URL="$(echo ${DOWNLOAD_LINE} | cut -f 2 -d ' ')"
-    local FILE_SUFFIX=$(echo ${URL} | sed -s 's/^.*\.//g')
-    local BASE64_URL="$(echo ${URL} | base64 -w 0)"
-    local READY_IMAGE_FILENAME="${VM__READY_IMAGE_CACHE_PATH}/${BASE64_URL}"
+    local FILE_SUFFIX=$(echo "${URL}" |sed -e 's/?.*//g' | sed -s 's/^.*\.//g')
+    local BASE32_URL="$(echo "${URL}" | base32 -w 0)"
+    local READY_IMAGE_FILENAME="${VM__READY_IMAGE_CACHE_PATH}/${BASE32_URL}"
     local DECOMPRESSED_IMAGE_FILENAME="${READY_IMAGE_FILENAME}.decompressed"
-    local CHECKSUM="$(echo ${DOWNLOAD_LINE} | cut -f 3 -d ' ')"
+    # local CHECKSUM_TYPE="$(echo ${DOWNLOAD_LINE} | cut -f 3 -d ' ') | cut -f 1 -d ':'"
+    # local CHECKSUM="$(     echo ${DOWNLOAD_LINE} | cut -f 3 -d ' ') | cut -f 1 -d ':'"
+    local CHECKSUM_TYPE="$(echo ${DOWNLOAD_LINE} | cut -f 3 -d ' ' | cut -f 1 -d ':')"
+    local CHECKSUM="$(     echo ${DOWNLOAD_LINE} | cut -f 3 -d ' ' | cut -f 2 -d ':')"
+    local TEMPORARY_IMAGE_FILENAME="${VM__INCOMPLETE_IMAGE_CACHE_PATH}/${BASE32_URL}"
 
-    # echo "VM_NAME:                  ${VM_NAME}"
-    # echo "PREBUILD_VM_NAME:         ${PREBUILD_VM_NAME}"
-    # echo "DOWNLOAD_LINE:            ${DOWNLOAD_LINE}"
-    # echo "URL:                      ${URL}"
-    # echo "FILE_SUFFIX:              ${FILE_SUFFIX}"
-    # echo "CHECKSUM:                 ${CHECKSUM}"
+    echo "VM_NAME:                     ${VM_NAME}"
+    echo "PREBUILD_VM_NAME:            ${PREBUILD_VM_NAME}"
+    echo "DOWNLOAD_LINE:               ${DOWNLOAD_LINE}"
+    echo "URL:                         ${URL}"
+    echo "FILE_SUFFIX:                 ${FILE_SUFFIX}"
+    echo "BASE32_URL:                  ${BASE32_URL}"
+    echo "READY_IMAGE_FILENAME:        ${READY_IMAGE_FILENAME}"
+    echo "DECOMPRESSED_IMAGE_FILENAME: ${DECOMPRESSED_IMAGE_FILENAME}"
+    echo "CHECKSUM_TYPE:               ${CHECKSUM_TYPE}"
+    echo "CHECKSUM:                    ${CHECKSUM}"
+    echo "TEMPORARY_IMAGE_FILENAME:    ${TEMPORARY_IMAGE_FILENAME}"
 
     if [ -r "${DECOMPRESSED_IMAGE_FILENAME}" ]; then
         echo "Image already in download cache. Skip download."
     else
+        echo
         vm__download_prebuild_to_cache ${URL}
-        case ${FILE_SUFFIX} in
+        # echo "Size of downloaded files:"
+        # ls -la "${HOME}/.cache/slime-mold/prebuild/ready/"
+        local ACTUAL_CHECKSUM="$(vm__file_checksum ${READY_IMAGE_FILENAME} ${CHECKSUM_TYPE})"
+
+        if [ "${ACTUAL_CHECKSUM}" != "${CHECKSUM}" ]; then
+            echo "Checksum mismatch."
+            echo "Expected:   ${CHECKSUM}"
+            echo "Calculated: ${ACTUAL_CHECKSUM}"
+            exit 1
+        fi
+
+        case "${FILE_SUFFIX}" in
             'qcow2')
                 mv "${DECOMPRESSED_IMAGE_FILENAME}" "${DECOMPRESSED_IMAGE_FILENAME}"
                 ;;
@@ -438,6 +485,7 @@ function vm__create_from_prebuild
                 ;;
             *)
                 echo "Don't know how to handle file extension: ${FILE_SUFFIX}"
+                exit 1
                 ;;
         esac
     fi
