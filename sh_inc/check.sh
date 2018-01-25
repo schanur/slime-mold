@@ -2,13 +2,13 @@
 # usable executable.
 function check_executable_available
 {
-    local EXECUTABLE_NAME=${1}
+    local EXECUTABLE_NAME="${1}"
     local EXECUTABLE_FOUND=1
 
-    which ${EXECUTABLE_NAME} > /dev/null || EXECUTABLE_FOUND=0
+    which "${EXECUTABLE_NAME}" > /dev/null || EXECUTABLE_FOUND=0
 
     if [ ${EXECUTABLE_FOUND} -eq 0 ]; then
-        echo "Executable not found: ${EXECUTABLE_NAME}"
+        echo "Required executable not found: ${EXECUTABLE_NAME}"
         exit 1
     fi
 }

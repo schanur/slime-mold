@@ -9,16 +9,16 @@ APPLIANCE__ARRAY_LENGTH=0
 
 function appliance__start
 {
-    local APPLIANCE_FILE=${1}
+    local APPLIANCE_FILE="${1}"
     local APPLIANCE_FILE_MALFORMED
-    local APPLIANCE_NAME=$(basename ${APPLIANCE_FILE})
+    local APPLIANCE_NAME="$(basename "${APPLIANCE_FILE}")"
 
     echo "appliance__start: ${APPLIANCE_NAME}"
 
-    appliance__check_file_syntax ${APPLIANCE_FILE}
+    appliance__check_file_syntax "${APPLIANCE_FILE}"
 
     # Run appliance file.
-    . ${SCRIPT_PATH}/${APPLIANCE_FILE}
+    . "${SCRIPT_PATH}/${APPLIANCE_FILE}"
 
     appliance__get_all_online
 
@@ -45,15 +45,15 @@ function appliance__read_file_sections
 #
 function appliance__check_file_syntax
 {
-    local APPLIANCE_FILE=${1}
+    local APPLIANCE_FILE="${1}"
 
     if [ ! -r "${APPLIANCE_FILE}" ]; then
         echo "Cannot read appliance file."
         exit 1
     fi
 
-    bash -n ${APPLIANCE_FILE}
-    APPLIANCE_FILE_MALFORMED=$?
+    bash -n "${APPLIANCE_FILE}"
+    APPLIANCE_FILE_MALFORMED=${?}
     if [ "${APPLIANCE_FILE_MALFORMED}"  != "0" ]; then
         echo "Appliance file malformed."
         echo "Abort."
@@ -75,7 +75,7 @@ function appliance__get_vm_online
 {
     local VM_NAME
 
-    VM_NAME=$(vm__image_file_2_vm_name ${IMAGE_FILE})
+    VM_NAME="$(vm__image_file_2_vm_name "${IMAGE_FILE}")"
 
     echo "appliance__get_vm_online"
 }

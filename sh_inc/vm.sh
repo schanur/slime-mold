@@ -202,12 +202,12 @@ function vm__find_free_vlan
 #
 function vm__unique_mac
 {
-    local VM_NAME=$1
-    local SALT=$2
+    local VM_NAME="${1}"
+    local SALT="${2}"
     local PREFIX="00:80:AD"
     local HASH
 
-    HASH=$(echo ${VM_NAME}${SALT} |sha512sum)
+    HASH=$(echo "${VM_NAME}${SALT}" |sha512sum)
 
     VM__UNIQUE_MAC_ADDR="${PREFIX}:${HASH:0:2}:${HASH:2:2}:${HASH:4:2}"
 }
@@ -215,8 +215,8 @@ function vm__unique_mac
 # Start a VM in a non blocking way.
 function vm__start
 {
-    local IMAGE_FILE=$1
-    local VDE_SWITCH_NAME=$2
+    local IMAGE_FILE="${1}"
+    local VDE_SWITCH_NAME="${2}"
     local VDE_NIC_MAC_ADDR
     local UMODE_NIC_MAC_ADDR
     local VM_NAME
@@ -228,7 +228,7 @@ function vm__start
     local LOCKFILE_VM
     local HW_ACCELERATION
 
-    VM_NAME=$(vm__image_file_2_vm_name ${IMAGE_FILE})
+    VM_NAME=$(vm__image_file_2_vm_name "${IMAGE_FILE}")
 
     vm__vm_running ${VM_NAME}
     VM_RUNNING=${?}
@@ -237,7 +237,7 @@ function vm__start
         exit 1
     fi
 
-    vm__unique_mac ${VM_NAME} "umode"
+    vm__unique_mac "${VM_NAME}" "umode"
     UMODE_NIC_MAC_ADDR=${VM__UNIQUE_MAC_ADDR}
 
     vm__unique_mac ${VM_NAME} "vde"
@@ -255,8 +255,8 @@ function vm__start
     VM_VLAN=${VM__FOUND_FREE_VLAN}
     echo ${VM_VLAN}
 
-    lf__lockfile_name__virtual_machine ${VM_SSH_PORT} ${VM_NAME}
-    LOCKFILE_VM=${LF__LOCKFILE_NAME}
+    lf__lockfile_name__virtual_machine ${VM_SSH_PORT} "${VM_NAME}"
+    LOCKFILE_VM="${LF__LOCKFILE_NAME}"
 
     vm__check_kvm_extension
     HW_ACCELERATION=${VM__HW_ACCELERATION}
@@ -275,28 +275,28 @@ function vm__start
     #  ${PROGRAM_SHORT_NAME} ${IMAGE_FILE} ${VM_SSH_PORT} ${UMODE_NIC_MAC_ADDR} ${VDE_NIC_MAC_ADDR} ${VDE_SWITCH_NAME} ${LOCKFILE_VM} ${HW_ACCELERATION} ${VM_NAME} ${VM_IP} ${VM_VLAN}
 
     nohup bash $(dirname $(which sm))/sh_inc/async_qemu.sh \
-          ${PROGRAM_SHORT_NAME} \
-          ${IMAGE_FILE} \
-          ${VM_SSH_PORT} \
-          ${VM_SPICE_PORT} \
-          ${UMODE_NIC_MAC_ADDR} \
-          ${VDE_NIC_MAC_ADDR} \
-          ${VDE_SWITCH_NAME} \
-          ${LOCKFILE_VM} \
-          ${HW_ACCELERATION} \
-          ${VM_NAME} \
-          ${VM_IP} \
-          ${VM_VLAN} \
-          > ${LOCKFILE_VM}.log 2>&1 &
+          "${PROGRAM_SHORT_NAME}" \
+          "${IMAGE_FILE}" \
+          "${VM_SSH_PORT}" \
+          "${VM_SPICE_PORT}" \
+          "${UMODE_NIC_MAC_ADDR}" \
+          "${VDE_NIC_MAC_ADDR}" \
+          "${VDE_SWITCH_NAME}" \
+          "${LOCKFILE_VM}" \
+          "${HW_ACCELERATION}" \
+          "${VM_NAME}" \
+          "${VM_IP}" \
+          "${VM_VLAN}" \
+          > "${LOCKFILE_VM}.log" 2>&1 &
 }
 
 # Stop the VM by sending the "halt" command
 # over SSH.
 function vm__stop
 {
-    local VM_NAME=${1}
+    local VM_NAME="${1}"
 
-    ssh__exec ${VM_NAME} halt
+    ssh__exec "${VM_NAME}" halt
 }
 
 # Stop the VM by sending the "halt" command
@@ -305,9 +305,9 @@ function vm__stop
 # TODO: It still blocks.
 function vm__stop_blocking
 {
-    local VM_NAME=${1}
+    local VM_NAME="${1}"
 
-    vm__stop ${VM_NAME}
+    vm__stop "${VM_NAME}"
 }
 
 
@@ -320,7 +320,7 @@ function vm__vm_running
 {
     local LOCKFILE_NAME_PARTIAL
     local MATCH_CNT
-    local VM_NAME=${1}
+    local VM_NAME="${1}"
 
     MATCH_CNT=0
     for LOCKFILE_NAME_PARTIAL in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__*__${VM_NAME}.lock"); do
@@ -340,7 +340,7 @@ function vm__vm_running
 # Prints a formated table with VM name and download URL.
 function vm__list_prebuild
 {
-    cat ${VM__PREBUILD_DOWNLOAD_LIST_FILE} | grep -v "^\ *#" | tr -s ' ' | cut -f 1,2 -d ' ' | column -t
+    cat "${VM__PREBUILD_DOWNLOAD_LIST_FILE}" | grep -v "^\ *#" | tr -s ' ' | cut -f 1,2 -d ' ' | column -t
 }
 
 function vm__download_prebuild_to_cache
@@ -397,15 +397,15 @@ function vm__download_prebuild_to_cache
 
     if [ ${DOWNLOAD_COMPLETE} -eq 1 ]; then
         echo "Download successful."
-        mv ${TEMPORARY_IMAGE_FILENAME} ${READY_IMAGE_FILENAME}
+        mv "${TEMPORARY_IMAGE_FILENAME}" "${READY_IMAGE_FILENAME}"
     fi
 }
 
 function vm__create_from_prebuild
 {
-    local VM_NAME=${1}
-    local PREBUILD_VM_NAME=${2}
-    local DOWNLOAD_LINE=$(cat ${VM__PREBUILD_DOWNLOAD_LIST_FILE} | grep -v '^\ *#' | tr -s ' ' | egrep "${PREBUILD_VM_NAME}")
+    local VM_NAME="${1}"
+    local PREBUILD_VM_NAME="${2}"
+    local DOWNLOAD_LINE=$(cat "${VM__PREBUILD_DOWNLOAD_LIST_FILE}" | grep -v '^\ *#' | tr -s ' ' | egrep "${PREBUILD_VM_NAME}")
     local URL="$(echo ${DOWNLOAD_LINE} | cut -f 2 -d ' ')"
     local FILE_SUFFIX=$(echo ${URL} | sed -s 's/^.*\.//g')
     local BASE64_URL="$(echo ${URL} | base64 -w 0)"
@@ -420,7 +420,7 @@ function vm__create_from_prebuild
     # echo "FILE_SUFFIX:              ${FILE_SUFFIX}"
     # echo "CHECKSUM:                 ${CHECKSUM}"
 
-    if [ -r ${DECOMPRESSED_IMAGE_FILENAME} ]; then
+    if [ -r "${DECOMPRESSED_IMAGE_FILENAME}" ]; then
         echo "Image already in download cache. Skip download."
     else
         vm__download_prebuild_to_cache ${URL}
@@ -445,10 +445,10 @@ function vm__create_from_prebuild
 # qcow2. The Image size is 5 gigabyte.
 function vm__create_new
 {
-    IMAGE_NAME=${1}
+    IMAGE_NAME="${1}"
     IMAGE_SIZE="5G"
 
-    qemu-img create -f qcow2 ${IMAGE_NAME} ${IMAGE_SIZE}
+    qemu-img create -f qcow2 "${IMAGE_NAME}" ${IMAGE_SIZE}
 }
 
 # Create an overlay image. In an overlay
@@ -458,10 +458,10 @@ function vm__create_new
 # of the same OS installation.
 function vm__create_overlay
 {
-    local IMAGE_FILE=${1}
-    local BASE_IMAGE_FILE=${2}
+    local IMAGE_FILE="${1}"
+    local BASE_IMAGE_FILE="${2}"
 
-    qemu-img create -b ${BASE_IMAGE_FILE} -f qcow2 ${IMAGE_FILE}
+    qemu-img create -b "${BASE_IMAGE_FILE}" -f qcow2 "${IMAGE_FILE}"
 }
 
 # Print the status of a virtual machine.
@@ -471,7 +471,7 @@ function vm__create_overlay
 # async_qemu.sh script.
 function vm__log
 {
-    local VM_NAME=$1
+    local VM_NAME="${1}"
     local VM_RUNNING
     local VM_LOG_FILE
 
@@ -485,7 +485,7 @@ function vm__log
 
     for VM_LOG_FILE in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__*__${VM_NAME}.lock.log"); do
         echo "Logfile exists:"
-        cat  ${VM_LOG_FILE}
+        cat  "${VM_LOG_FILE}"
     done
 }
 
@@ -502,14 +502,14 @@ function vm__log
 #             manner.
 function vm__status
 {
-    local VM_NAME=$1
+    local VM_NAME="${1}"
     local SSH_ERR
     local VM_RUNNING
 
-    vm__vm_running ${VM_NAME}
+    vm__vm_running "${VM_NAME}"
     VM_RUNNING=${?}
     if [ "${VM_RUNNING}" = "1" ]; then
-        ssh__exec ${VM_NAME} true 2>/dev/null
+        ssh__exec "${VM_NAME}" true 2>/dev/null
         SSH_ERR=${?}
         if [ "${SSH_ERR}" = "0" ]; then
             echo "online"
@@ -529,9 +529,9 @@ function vm__list
     local VM_SSH_PORT
 
     for LOCKFILE_NAME in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__*__*.lock"); do
-        VM_NAME=$(    echo ${LOCKFILE_NAME} |sed 's|/tmp/${PROGRAM_SHORT_NAME}__vde_vm__||g' |sed 's|.*__||g' |sed 's|.lock||g')
-        VM_SSH_PORT=$(echo ${LOCKFILE_NAME} |sed 's|/tmp/${PROGRAM_SHORT_NAME}__vde_vm__||g' |sed 's|__.*||g' |sed 's|.lock||g')
-        echo ${VM_NAME} ${VM_SSH_PORT}
+        VM_NAME=$(    echo "${LOCKFILE_NAME}" |sed 's|/tmp/${PROGRAM_SHORT_NAME}__vde_vm__||g' |sed 's|.*__||g' |sed 's|.lock||g')
+        VM_SSH_PORT=$(echo "${LOCKFILE_NAME}" |sed 's|/tmp/${PROGRAM_SHORT_NAME}__vde_vm__||g' |sed 's|__.*||g' |sed 's|.lock||g')
+        echo "${VM_NAME} ${VM_SSH_PORT}"
     done
 }
 
@@ -541,10 +541,10 @@ function vm__image_file_2_vm_name
 {
     local VM_NAME
 
-    VM_NAME=$(echo ${IMAGE_FILE} |sed 's/\ /_/g')
-    VM_NAME=$(echo ${IMAGE_FILE} |sed 's/__/_/g' |sed 's/__/_/g' |sed 's/__/_/g' |sed 's/__/_/g')
-    VM_NAME=$(echo $(basename ${VM_NAME}))
+    VM_NAME=$(echo "${IMAGE_FILE}" |sed 's/\ /_/g')
+    VM_NAME=$(echo "${IMAGE_FILE}" |sed 's/__/_/g' |sed 's/__/_/g' |sed 's/__/_/g' |sed 's/__/_/g')
+    VM_NAME=$(echo $(basename "${VM_NAME}"))
     VM_NAME=${VM_NAME%.*}
 
-    echo ${VM_NAME}
+    echo "${VM_NAME}"
 }

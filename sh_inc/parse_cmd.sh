@@ -83,11 +83,11 @@ function parse_cmd
 
         if   [ "${SUB_ACTION}" = "start" ];                then
             expected_param ${#} 1
-            appliance__start ${1}
+            appliance__start "${1}"
 
         elif [ "${SUB_ACTION}" = "stop" ];                 then
             expected_param ${#} 1
-            appliance__stop ${1}
+            appliance__stop "${1}"
 
         else
             invalid_params "No valid sub action selected for action \"${ACTION}\"."
@@ -96,11 +96,11 @@ function parse_cmd
 
         if   [ "${SUB_ACTION}" = "start" ];                then
             expected_param ${#} 1
-            switch__start ${1}
+            switch__start "${1}"
 
         elif [ "${SUB_ACTION}" = "stop" ];                 then
             expected_param ${#} 1
-            switch__stop ${1}
+            switch__stop "${1}"
 
         #elif [ "${SUB_ACTION}" = "status" ];              then
         #    expected_param ${#} 1
@@ -108,7 +108,7 @@ function parse_cmd
 
         elif [ "${SUB_ACTION}" = "console" ];              then
             expected_param ${#} 1
-            switch__console ${1}
+            switch__console "${1}"
 
         elif [ "${SUB_ACTION}" = "list" ];                 then
             expected_param ${#} 0
@@ -137,19 +137,20 @@ function parse_cmd
 
         elif [ "${SUB_ACTION}" = "start" ];                then
             expected_param ${#} 2
-            vm__start "${1}" ${2}
+            vm__start "${1}" "${2}"
 
         elif [ "${SUB_ACTION}" = "stop" ];                 then
             expected_param ${#} 1
-            vm__stop ${1}
+            vm__stop "${1}"
+
 
         elif [ "${SUB_ACTION}" = "log" ];                  then
             expected_param ${#} 1
-            vm__log ${1}
+            vm__log "${1}"
 
         elif [ "${SUB_ACTION}" = "status" ];               then
             expected_param ${#} 1
-            vm__status ${1}
+            vm__status "${1}"
 
         elif [ "${SUB_ACTION}" = "list" ];                 then
             expected_param ${#} 0
@@ -174,11 +175,11 @@ function parse_cmd
 
         elif [ "${SUB_ACTION}" = "exec" ];                 then
             #expected_param ${#} 2
-            ssh__exec $*
+            ssh__exec ${*}
 
         elif [ "${SUB_ACTION}" = "login" ];                then
             expected_param ${#} 1
-            ssh__login $1
+            ssh__login "${1}"
 
         else
             invalid_params "No valid sub action selected for action \"${ACTION}\"."
