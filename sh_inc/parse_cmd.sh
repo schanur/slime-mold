@@ -12,7 +12,7 @@ function usage
     echo
     echo "${PROGRAM_SHORT_NAME} switch    start                   SWITCH_NAME"
     echo "${PROGRAM_SHORT_NAME} switch    stop                    SWITCH_NAME"
-#   echo "${PROGRAM_SHORT_NAME} switch    status                  SWITCH_NAME"
+    # echo "${PROGRAM_SHORT_NAME} switch    status                  SWITCH_NAME"
     echo "${PROGRAM_SHORT_NAME} switch    console                 SWITCH_NAME"
     echo "${PROGRAM_SHORT_NAME} switch    list"
 #   echo
@@ -27,6 +27,7 @@ function usage
     echo "${PROGRAM_SHORT_NAME} vm        start                   VM_IMAGE      SWITCH_NAME"
 #   echo "${PROGRAM_SHORT_NAME} vm        stop           [-b SEC] VM_NAME"
     echo "${PROGRAM_SHORT_NAME} vm        stop                    VM_NAME"
+    echo "${PROGRAM_SHORT_NAME} vm        kill                    VM_NAME"
     echo "${PROGRAM_SHORT_NAME} vm        log                     VM_NAME"
     echo "${PROGRAM_SHORT_NAME} vm        status                  VM_NAME"
     echo "${PROGRAM_SHORT_NAME} vm        list"
@@ -102,9 +103,10 @@ function parse_cmd
             expected_param ${#} 1
             switch__stop "${1}"
 
-        #elif [ "${SUB_ACTION}" = "status" ];              then
-        #    expected_param ${#} 1
-        #       echo "switch__status"
+            # TODO: Remove from API.
+        elif [ "${SUB_ACTION}" = "status" ];               then
+            expected_param ${#} 1
+            switch__status "${1}"
 
         elif [ "${SUB_ACTION}" = "console" ];              then
             expected_param ${#} 1
@@ -143,6 +145,9 @@ function parse_cmd
             expected_param ${#} 1
             vm__stop "${1}"
 
+        elif [ "${SUB_ACTION}" = "kill" ];                 then
+            expected_param ${#} 1
+            vm__kill "${1}"
 
         elif [ "${SUB_ACTION}" = "log" ];                  then
             expected_param ${#} 1

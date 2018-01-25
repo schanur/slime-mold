@@ -195,10 +195,8 @@ function vm__find_free_vlan
 }
 
 
-# Generate a unique MAC address based
-# on the VM name, where the same VM name
-# will always generate the same MAC
-# address.
+# Generate a unique MAC address based on the VM name, where the same
+# VM name will always generate the same MAC address.
 #
 function vm__unique_mac
 {
@@ -230,8 +228,7 @@ function vm__start
 
     VM_NAME=$(vm__image_file_2_vm_name "${IMAGE_FILE}")
 
-    vm__vm_running ${VM_NAME}
-    VM_RUNNING=${?}
+    VM_RUNNING=$(vm__vm_running "${VM_NAME}")
     if [ "${VM_RUNNING}" = "1" ]; then
         echo "VM is already running"
         exit 1
@@ -263,14 +260,16 @@ function vm__start
 
     echo "PROGRAM_SHORT_NAME: ${PROGRAM_SHORT_NAME}"
     echo "VM_RUNNING:         ${VM_RUNNING}"
-    echo "UMODE_NIC_MAC_ADDR: ${UMODE_NIC_MAC_ADDR}"
-    echo "VDE_NIC_MAC_ADDR:   ${VDE_NIC_MAC_ADDR}"
+    echo "IMAGE_FILE:         ${IMAGE_FILE}"
     echo "VM_SSH_PORT:        ${VM_SSH_PORT}"
     echo "VM_SPICE_PORT:      ${VM_SPICE_PORT}"
-    echo "VM_IP:              ${VM_IP}"
-    echo "VM_VLAN:            ${VM_VLAN}"
+    echo "UMODE_NIC_MAC_ADDR: ${UMODE_NIC_MAC_ADDR}"
+    echo "VDE_NIC_MAC_ADDR:   ${VDE_NIC_MAC_ADDR}"
+    echo "VDE_SWITCH_NAME:    ${VDE_SWITCH_NAME}"
     echo "LOCKFILE_VM:        ${LOCKFILE_VM}"
     echo "HW_ACCELERATION:    ${HW_ACCELERATION}"
+    echo "VM_IP:              ${VM_IP}"
+    echo "VM_VLAN:            ${VM_VLAN}"
 
     #  ${PROGRAM_SHORT_NAME} ${IMAGE_FILE} ${VM_SSH_PORT} ${UMODE_NIC_MAC_ADDR} ${VDE_NIC_MAC_ADDR} ${VDE_SWITCH_NAME} ${LOCKFILE_VM} ${HW_ACCELERATION} ${VM_NAME} ${VM_IP} ${VM_VLAN}
 
@@ -290,8 +289,7 @@ function vm__start
           > "${LOCKFILE_VM}.log" 2>&1 &
 }
 
-# Stop the VM by sending the "halt" command
-# over SSH.
+# Stop the VM by sending the "halt" command over SSH.
 function vm__stop
 {
     local VM_NAME="${1}"
@@ -299,10 +297,16 @@ function vm__stop
     ssh__exec "${VM_NAME}" halt
 }
 
-# Stop the VM by sending the "halt" command
-# over SSH. The function blocks until the VM
-# has shut down.
-# TODO: It still blocks.
+# Stop the VM by sending SIGKILL to the qemu process.
+function vm__kill
+{
+    local VM_NAME="${1}"
+
+    ssh__exec "${VM_NAME}" halt
+}
+
+# Stop the VM by sending the "halt" command over SSH. The function
+# blocks until the VM has shut down.  TODO: It still blocks.
 function vm__stop_blocking
 {
     local VM_NAME="${1}"
@@ -313,7 +317,7 @@ function vm__stop_blocking
 
 
 # Check if the VM name occurs in a lockfile.
-# Return values:
+# Echos values:
 # 1 if VM is running.
 # 0 if VM is not running.
 function vm__vm_running
@@ -324,13 +328,13 @@ function vm__vm_running
 
     MATCH_CNT=0
     for LOCKFILE_NAME_PARTIAL in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__*__${VM_NAME}.lock"); do
-        (( MATCH_CNT++ ))
+        (( MATCH_CNT += 1 ))
     done
 
     if   [[ "${MATCH_CNT}" = "1" ]]; then
-        return 1
+        echo 1
     elif [[ "${MATCH_CNT}" = "0" ]]; then
-        return 0
+        echo 0
     else
         echo "Error: More than one lockfile found for \"${PROGRAM_SHORT_NAME}__vde_vm__*__${VM_NAME}.lock\""
         exit 1
@@ -475,8 +479,7 @@ function vm__log
     local VM_RUNNING
     local VM_LOG_FILE
 
-    vm__vm_running ${VM_NAME}
-    VM_RUNNING=${?}
+    VM_RUNNING=$(vm__vm_running "${VM_NAME}")
     if [ "${VM_RUNNING}" = "1" ]; then
         echo "VM running for minutes"
     else

@@ -48,16 +48,44 @@ function switch__console
     unixterm "/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}.mgmt"
 }
 
+function switch__online
+{
+    local SWITCH_NAME=${1}
+    # local STATUS_STR="$(echo -n "1")"
+    local PID_LINE_CNT=$(ps aux | grep "vde_switch" | grep -c "/tmp/${PROGRAM_SHORT_NAME}__switch__${SWITCH_NAME}")
+    if [ "${PID_LINE_CNT}" != "1" ]; then
+        # echo "$(echo -n "0")"
+        echo -n 0
+    else
+        echo -n 1
+    fi
+
+    # echo -n "${STATUS_STR}"
+
+}
+
 # Prints status string "Online" or "Offline"
 function switch__status
 {
-    local STATUS_STR="Online"
-    local PID_LINE_CNT=$(ps aux | grep "vde_switch" | grep -c "/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}")
-    if [ "${PID_LINE_CNT}" != "1" ]; then
-        echo "Offline"
-    fi
+    local SWITCH_NAME=${1}
+    # local SWITCH_NAME="${VDE_SWITCH_NAME}"
+    local STATUS_STR=""
+    local SWITCH_ONLINE_RESULT="$(switch__online "${SWITCH_NAME}")"
 
-    echo ${STATUS_STR}
+    case ${SWITCH_ONLINE_RESULT} in
+        0)
+            STATUS_STR="Offline"
+            ;;
+        1)
+            STATUS_STR="Online"
+            ;;
+        *)
+            echo "Invalid switch status: > ${SWITCH_ONLINE_RESULT} <"
+            exit 1
+            ;;
+    esac
+
+    echo "${STATUS_STR}"
 }
 
 # Print a list of all running switches.

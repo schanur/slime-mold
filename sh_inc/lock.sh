@@ -18,9 +18,9 @@ LF__LOCKFILE_NAME="" # Used by lf__lockfile_name_*()
 function lf__lockfile_name__virtual_machine
 {
     local SSH_REDIRECT_PORT=${1}
-    local VM_NAME=${2}
+    local VM_NAME="${2}"
 
-    LF__LOCKFILE_NAME=/tmp/${PROGRAM_SHORT_NAME}__vde_vm__${SSH_REDIRECT_PORT}__${VM_NAME}.lock
+    LF__LOCKFILE_NAME="/tmp/${PROGRAM_SHORT_NAME}__vde_vm__${SSH_REDIRECT_PORT}__${VM_NAME}.lock"
 }
 
 # Create a lockfile with the path/name
@@ -30,7 +30,7 @@ function lf__create_lockfile
     local ERR
     local LOCKFILE_NAME=$*
 
-    lockfile -r 0 ${LOCKFILE_NAME}
+    lockfile -r 0 "${LOCKFILE_NAME}"
     ERR=$?
     if [ "${ERR}" != "0" ]; then
         echo "Application is already running or lockfile was not deleted after last run." >&2
@@ -40,6 +40,9 @@ function lf__create_lockfile
     fi
     LF__LOCKFILE_LIST="${LF__LOCKFILE_LIST} ${LOCKFILE_NAME}"
     #trap "rm -f ${LF__LOCKFILE_LIST}; exit" INT TERM EXIT
+
+    # If the program crashed for any particular reason, remove all
+    # lockfiles.
     trap "lf__destroy_lockfile_list" INT TERM EXIT
 }
 
@@ -47,10 +50,10 @@ function lf__create_lockfile
 # of the parameter $1.
 function lf__destroy_lockfile
 {
-    LOCKFILE_NAME=$1
-    if [ -f ${LOCKFILE_NAME} ]; then
+    LOCKFILE_NAME="${1}"
+    if [ -f "${LOCKFILE_NAME}" ]; then
         echo "Destroy lockfile \"${LOCKFILE_NAME}\""
-        rm -f ${LOCKFILE_NAME}
+        rm -f "${LOCKFILE_NAME}"
 #    else
 #        echo "Cannot destroy lockfile \"$1\""
 #        exit 1
@@ -69,15 +72,15 @@ function lf__destroy_lockfile_list
     exit 0
 }
 
-function lf__lock_global()
-{
-    exit 1
-}
+# function lf__lock_global()
+# {
+#     exit 1
+# }
 
-function lf__unlock_global()
-{
-    exit 1
-}
+# function lf__unlock_global()
+# {
+#     exit 1
+# }
 
 # function lf__port_in_use()
 # {
