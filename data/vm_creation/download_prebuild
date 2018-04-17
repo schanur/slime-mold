@@ -1,3 +1,3 @@
-debian-9          https://dropbox.com/s/n4yttnapobq406m/debian-9.qcow2.xz?raw=1   sha512:d108b90eceeadca6e9784804d9390aaaf998c66bb822e279417b7eb1d0244d2345fc8463d34bdba1f18d0c55e1b3799447f33345fc79331752795bb611a7bafc
+debian-10         https://dropbox.com/s/39aawuvy7xlkyp2/debian-10.qcow2.xz?raw=1     sha512:63a6eae5e20e856cec56a23966b93c6d60cb2f53f12003eee92a426247974ac63e29b721006965abf01e7c9f662e27332fb7d5efeb629f0b51ae22da6707f895
+debian-9          https://dropbox.com/s/n4yttnapobq406m/debian-9.qcow2.xz?raw=1      sha512:d108b90eceeadca6e9784804d9390aaaf998c66bb822e279417b7eb1d0244d2345fc8463d34bdba1f18d0c55e1b3799447f33345fc79331752795bb611a7bafc
 debian-8          https://www.dropbox.com/s/ax7gylpoyrawqkc/debian-8.qcow2.xz?dl=0   sha512:7bb5068563b21a9e8c1e56c8f0378951f882ac747b22e9df89cd3e60b669530a579ba2936e437381741fa37b6e2f9d787a700db462ddb3b71ce51a06dd66c659
-
