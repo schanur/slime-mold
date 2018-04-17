@@ -74,8 +74,7 @@ echo
 echo "Command:"
 echo "${QEMU_CMD}"
 
-
-lf__create_lockfile ${LOCKFILE_VM}
+lf__create_lockfile "${LOCKFILE_VM}"
 
 echo "qemu parent PID: ${$}"
 echo "Start time:      $(date)"
@@ -85,4 +84,4 @@ ${QEMU_CMD} || RET=${?}
 echo "Return code:     ${RET}"
 echo "Stop time:       $(date)"
 
-lf__destroy_lockfile ${LOCKFILE_VM}
+lf__destroy_lockfile "${LOCKFILE_VM}"
