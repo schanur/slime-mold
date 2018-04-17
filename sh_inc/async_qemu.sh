@@ -19,6 +19,7 @@ HW_ACCELERATION_OPTION=${9}
 VM_NAME=${10}
 VM_IP=${11}
 VM_VLAN=${12}
+VM_MEM="256"
 
 HW_ACCELERATION_STR=""
 
@@ -42,7 +43,7 @@ fi
 INTERACTIVE_QEMU_CMD="\
 qemu-system-x86_64 \
 ${HW_ACCELERATION_STR} \
--m 128 \
+-m ${VM_MEM} \
 -drive file=${IMAGE_FILE},cache=unsafe,discard=on \
 -net nic,macaddr=${UMODE_NIC_MAC_ADDR},vlan=${VM_VLAN} -net user,net=10.0.2.0/24,dhcpstart=${VM_IP},hostfwd=tcp::${VM_SSH_PORT}-:22,vlan=${VM_VLAN} \
 -net nic,macaddr=${VDE_NIC_MAC_ADDR} -net vde,sock=/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}"
