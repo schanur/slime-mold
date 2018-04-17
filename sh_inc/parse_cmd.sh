@@ -38,6 +38,8 @@ function usage
     echo "${PROGRAM_SHORT_NAME} ssh       exec                    VM_NAME       COMMAND"
     echo "${PROGRAM_SHORT_NAME} ssh       login                   VM_NAME"
     echo
+    echo "${PROGRAM_SHORT_NAME} spice     login                   VM_NAME"
+    echo
 }
 
 
@@ -185,6 +187,15 @@ function parse_cmd
         elif [ "${SUB_ACTION}" = "login" ];                then
             expected_param ${#} 1
             ssh__login "${1}"
+
+        else
+            invalid_params "No valid sub action selected for action \"${ACTION}\"."
+        fi
+    elif [ "${ACTION}" = "spice" ];    then
+
+        if   [ "${SUB_ACTION}" = "login" ];                then
+            expected_param ${#} 1
+            spice__login "${1}"
 
         else
             invalid_params "No valid sub action selected for action \"${ACTION}\"."

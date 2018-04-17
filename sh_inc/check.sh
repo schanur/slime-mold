@@ -34,6 +34,13 @@ function check_ssh
     check_executable_available ssh-keygen
 }
 
+# Exits the application if spice client is not available or too old.
+function check_spice
+{
+    check_executable_available remote-viewer
+    check_executable_available spice-xpi-client
+}
+
 function check_linux_tools
 {
     check_executable_available basename

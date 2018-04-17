@@ -15,6 +15,7 @@ source "${INCLUDE_PATH}/appliance.sh"
 source "${INCLUDE_PATH}/switch.sh"
 source "${INCLUDE_PATH}/vm.sh"
 source "${INCLUDE_PATH}/ssh.sh"
+source "${INCLUDE_PATH}/spice.sh"
 
 BIVALVIA_PATH="${SCRIPT_PATH}/vendor/libbivalvia/bivalvia"
 source "${BIVALVIA_PATH}/debug.sh"
