@@ -94,7 +94,7 @@ function ssh__install_key
     ssh__vm_name_2_ssh_port "${VM_NAME}"
     ensure_local_key_exists
     echo "Install key on target VM"
-    scp -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -P ${SSH__VM_PORT} -l ${SSH__DEFAULT_LOGIN_NAME} -i ssh_conf/id_rsa.pub "${SSH__VM_USERNAME}@localhost:.ssh/authorized_keys" exit
+    ssh-copy-id -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i "${SSH__LOCAL_KEY_FILE}" "${SSH__VM_USERNAME}@localhost"
 }
 
 # Login into a VM.
