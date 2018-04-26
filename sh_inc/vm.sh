@@ -228,6 +228,7 @@ function vm__start
     local VM_VLAN
     local LOCKFILE_VM
     local HW_ACCELERATION
+    local ASYNC_QEMU_SCRIPT
 
     VM_NAME=$(vm__image_file_2_vm_name "${IMAGE_FILE}")
 
@@ -276,7 +277,9 @@ function vm__start
 
     #  ${PROGRAM_SHORT_NAME} ${IMAGE_FILE} ${VM_SSH_PORT} ${UMODE_NIC_MAC_ADDR} ${VDE_NIC_MAC_ADDR} ${VDE_SWITCH_NAME} ${LOCKFILE_VM} ${HW_ACCELERATION} ${VM_NAME} ${VM_IP} ${VM_VLAN}
 
-    nohup bash $(dirname $(which sm))/sh_inc/async_qemu.sh \
+    ASYNC_QEMU_SCRIPT="$(dirname "$(which sm)")/sh_inc/async_qemu.sh"
+    # echo "ASYNC_QEMU_SCRIPT:  ${ASYNC_QEMU_SCRIPT}"
+    nohup bash "${ASYNC_QEMU_SCRIPT}" \
           "${PROGRAM_SHORT_NAME}" \
           "${IMAGE_FILE}" \
           "${VM_SSH_PORT}" \
