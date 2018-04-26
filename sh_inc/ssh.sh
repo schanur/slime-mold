@@ -5,6 +5,8 @@ SSH__VM_USERNAME=$(whoami)
 
 # Options
 SSH__CONNECT_TIMEOUT=5
+SSH__DEFAULT_LOGIN_NAME="sm"
+
 
 # TODO: Abort if an ssh kay pair was already created.
 function ssh__create_key
@@ -64,47 +66,46 @@ function ssh__receive
     local VM_NAME="${1}"
     local SOURCE="${2}"
     local TARGET="${3}"
+    # shift 3
+    # local USER_SSH_OPT
 
-    scp -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -r -P 12201 "${SSH__VM_USERNAME}@localhost:${SOURCE}" "${TARGET}"
+    ssh__vm_name_2_ssh_port "${VM_NAME}"
+    scp -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -r -P ${SSH__VM_PORT} -l ${SSH__DEFAULT_LOGIN_NAME} "${SSH__VM_USERNAME}@localhost:${SOURCE}" "${TARGET}"
 }
 
 # Install a preshared key in a VM to allow
 # login without passwort.
 function ssh__install_key
 {
-    local VM_NAME
+    local VM_NAME="${1}"
 
-    VM_NAME="${1}"
     ssh__vm_name_2_ssh_port "${VM_NAME}"
     if [ "$(ssh__login_key_exists)" = "0" ]; then
         ssh_create_key
     fi
     echo "Install key on target VM"
-    scp -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -P ${SSH__VM_PORT} ssh_conf/id_rsa.pub "${SSH__VM_USERNAME}@localhost:.ssh/authorized_keys" exit
+    scp -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -P ${SSH__VM_PORT} -l ${SSH__DEFAULT_LOGIN_NAME} -i ssh_conf/id_rsa.pub "${SSH__VM_USERNAME}@localhost:.ssh/authorized_keys" exit
 }
 
 # Login into a VM.
 function ssh__login
 {
-    local VM_NAME
+    local VM_NAME="${1}"
 
-    VM_NAME="${1}"
     ssh__vm_name_2_ssh_port "${VM_NAME}"
-    ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i ssh_conf/id_rsa "${SSH__VM_USERNAME}@localhost"
+    ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -l ${SSH__DEFAULT_LOGIN_NAME} -i ssh_conf/id_rsa "${SSH__VM_USERNAME}@localhost"
 }
 
 # Run a command in the virtual maschine.
 function ssh__exec
 {
     local ERR
-    local VM_NAME
-
-    VM_NAME="${1}"
+    local VM_NAME="${1}"
     shift 1 # Parameter 2-x is used as SSH command.
 
     ssh__vm_name_2_ssh_port "${VM_NAME}"
     #ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i ssh_conf/id_rsa ${SSH__VM_USERNAME}@localhost $*
-    ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i ssh_conf/id_rsa "${SSH__VM_USERNAME}@locahost" $*
+    ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -l ${SSH__DEFAULT_LOGIN_NAME} -i ssh_conf/id_rsa "${SSH__VM_USERNAME}@locahost" $*
     ERR=${?}
 
     return ${ERR}
@@ -122,6 +123,7 @@ function ssh__vm_name_2_ssh_port
     local CURR_VM_NAME
     local VM_NAME="${1}"
 
+    # TODO: extract {spice|ssh}__vm_name_2_ssh_port
     for LOCKFILE_NAME_PARTIAL in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__*__${VM_NAME}.lock" |sed "s/\/tmp\/${PROGRAM_SHORT_NAME}__vde_vm__//g"); do
         CURR_VM_NAME=$(echo "${LOCKFILE_NAME_PARTIAL}" |sed "s/${PROGRAM_SHORT_NAME}__vde_vm__//g" |sed 's/.*__//g' |sed 's/\.lock//g')
         if [ "${CURR_VM_NAME}" = "${VM_NAME}" ]; then
