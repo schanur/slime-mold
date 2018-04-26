@@ -12,6 +12,7 @@ LF__LOCKFILE_NAME="" # Used by lf__lockfile_name_*()
 #     LF__LOCKFILE_NAME=/tmp/${PROGRAM_SHORT_NAME}__vde_vm_name__${VM_NAME}.lock
 # }
 
+
 # Create the filename of the lockfile by 2 parameters.
 # 1. SSH port
 # 2. VM name

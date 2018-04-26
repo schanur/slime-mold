@@ -66,6 +66,7 @@ function expected_param
 {
     local ARGS=${1}
     local MIN_ARGS=${2}
+
     # local MAX_ARGS=${3}
 
     # if [ "${MAX_ARGS}" = "" ]; then
@@ -75,6 +76,7 @@ function expected_param
     # if [ ${ARGS} -lt ${MIN_ARGS} -o ${ARGS} -gt ${MAX_ARGS} ]; then
     if [ ${ARGS} -lt ${MIN_ARGS} ]; then
         invalid_params "Number of parameter not allowed for action \"${ACTION}\" with sub action \"${SUB_ACTION}\""
+    fi
 }
 
 # Make some basic checks on the parameters
@@ -86,11 +88,11 @@ function expected_param_num_range
     local MAX_ARGS=${3}
 
     if [ ${ARGS} -lt ${MIN_ARGS} ]; then
-	invalid_params "Number of parameter not allowed for action \"${ACTION}\" with sub action \"${SUB_ACTION}\""
+        invalid_params "Number of parameter not allowed for action \"${ACTION}\" with sub action \"${SUB_ACTION}\""
     fi
 
     if [ ${ARGS} -gt ${MAX_ARGS} ]; then
-	invalid_params "Number of parameter not allowed for action \"${ACTION}\" with sub action \"${SUB_ACTION}\""
+        invalid_params "Number of parameter not allowed for action \"${ACTION}\" with sub action \"${SUB_ACTION}\""
     fi
 }
 
@@ -101,21 +103,21 @@ function parse_cmd
     local SUB_ACTION
 
     if   [ "$#" = "0" ]; then
-	invalid_params "Too few arguments."
+        invalid_params "Too few arguments."
     fi
 
     ACTION=${1}
 
     if [ "$#" = "1" ]; then
-	case "${ACTION}" in
-	    'list')
-		shortcut__list
-		;;
-	    *)
-		invalid_params "Too few arguments."
-		;;
-	esac
-	exit ${ERR}
+        case "${ACTION}" in
+            'list')
+                shortcut__list
+                ;;
+            *)
+                invalid_params "Too few arguments."
+                ;;
+        esac
+        exit ${ERR}
     fi
 
     SUB_ACTION=${2}
@@ -210,7 +212,7 @@ function parse_cmd
 
         if   [ "${SUB_ACTION}" = "install_key" ];          then
             expected_param ${#} 1
-            echo "ssh__install"
+            ssh__install_key "${1}"
 
         elif [ "${SUB_ACTION}" = "send" ];                 then
             expected_param ${#} 3
