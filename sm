@@ -7,6 +7,13 @@ PROGRAM_SHORT_NAME="sm"
 
 SCRIPT_PATH="$(dirname "${0}")"
 
+SM_SUB_PATH="slime-mold"
+SM_CONFIG_PATH="${HOME}/.config/${SM_SUB_PATH}"
+SM_CACHE_PATH="${HOME}/.cache/${SM_SUB_PATH}"
+
+BIVALVIA_PATH="${SCRIPT_PATH}/vendor/libbivalvia/bivalvia"
+source "${BIVALVIA_PATH}/debug.sh"
+
 INCLUDE_PATH="${SCRIPT_PATH}/sh_inc"
 source "${INCLUDE_PATH}/lock.sh"
 source "${INCLUDE_PATH}/check.sh"
@@ -18,8 +25,8 @@ source "${INCLUDE_PATH}/ssh.sh"
 source "${INCLUDE_PATH}/spice.sh"
 source "${INCLUDE_PATH}/shortcut.sh"
 
-BIVALVIA_PATH="${SCRIPT_PATH}/vendor/libbivalvia/bivalvia"
-source "${BIVALVIA_PATH}/debug.sh"
+
+
 
 # stack_trace
 trap stack_trace ERR

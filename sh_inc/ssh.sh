@@ -4,23 +4,36 @@ SSH__VM_PORT=""
 # Options
 SSH__CONNECT_TIMEOUT=5
 SSH__VM_USERNAME="sm"
+SSH__LOCAL_KEY_PATH="${SM_CONFIG_PATH}/ssh_keys"
+SSH__LOCAL_KEY_FILE="${SSH__LOCAL_KEY_PATH}/id_rsa"
 
 
 # TODO: Abort if an ssh kay pair was already created.
-function ssh__create_key
+function ssh__create_local_key
 {
     echo "ssh__create_key"
-    ssh-keygen -q -f ssh_conf/id_rsa -N ""
+    if [ ! -d "${SSH__LOCAL_KEY_PATH}" ]; then
+        mkdir -p "${SSH__LOCAL_KEY_PATH}"
+    fi
+    ssh-keygen -q -f "${SSH__LOCAL_KEY_FILE}" -N ""
 }
 
 # Check if an RSA key, which is used to login into the
 # virtual maschines without a password, was already created.
 function ssh__login_key_exists
 {
-    if [ ! -f ssh_conf/id_rsa ]; then
-        return 0
+    if [ ! -f "${SSH__LOCAL_KEY_FILE}" ]; then
+        echo 0
+    else
+        echo 1
     fi
-    return 1
+}
+
+function ensure_local_key_exists
+{
+    if [ "$(ssh__login_key_exists)" = "0" ]; then
+        ssh__create_local_key
+    fi
 }
 
 # Copy one or more files to VM. If source file
@@ -40,9 +53,9 @@ function ssh__send
     #local RECURSIVE=""
 
     ssh__vm_name_2_ssh_port "${VM_NAME}"
-    tar cf - "${SOURCE}" | ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i ssh_conf/id_rsa "${SSH__VM_USERNAME}@localhost" tar xf -
-    #tar cf - ${SOURCE} | ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i ssh_conf/id_rsa ${SSH__VM_USERNAME}@127.0.0.1 tar xf -C ${TARGET} -
-    #ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i ssh_conf/id_rsa ${SSH__VM_USERNAME}@127.0.0.1 $*
+    tar cf - "${SOURCE}" | ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i "${SSH__LOCAL_KEY_FILE}" "${SSH__VM_USERNAME}@localhost" tar xf -
+    #tar cf - ${SOURCE} | ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i "${SSH__LOCAL_KEY_FILE}" ${SSH__VM_USERNAME}@127.0.0.1 tar xf -C ${TARGET} -
+    #ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i "${SSH__LOCAL_KEY_FILE}" ${SSH__VM_USERNAME}@127.0.0.1 $*
 
     # if [ -d "${SOURCE}" ]; then
     #     RECURSIVE="-r"
@@ -68,7 +81,8 @@ function ssh__receive
     # local USER_SSH_OPT
 
     ssh__vm_name_2_ssh_port "${VM_NAME}"
-    scp -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -r -P ${SSH__VM_PORT} -l ${SSH__DEFAULT_LOGIN_NAME} "${SSH__VM_USERNAME}@localhost:${SOURCE}" "${TARGET}"
+    ensure_local_key_exists
+    scp -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -r -P ${SSH__VM_PORT} -i "${SSH__LOCAL_KEY_FILE}" -l ${SSH__VM_USERNAME} "localhost:${SOURCE}" "${TARGET}"
 }
 
 # Install a preshared key in a VM to allow
@@ -78,9 +92,7 @@ function ssh__install_key
     local VM_NAME="${1}"
 
     ssh__vm_name_2_ssh_port "${VM_NAME}"
-    if [ "$(ssh__login_key_exists)" = "0" ]; then
-        ssh_create_key
-    fi
+    ensure_local_key_exists
     echo "Install key on target VM"
     scp -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -P ${SSH__VM_PORT} -l ${SSH__DEFAULT_LOGIN_NAME} -i ssh_conf/id_rsa.pub "${SSH__VM_USERNAME}@localhost:.ssh/authorized_keys" exit
 }
@@ -91,7 +103,8 @@ function ssh__login
     local VM_NAME="${1}"
 
     ssh__vm_name_2_ssh_port "${VM_NAME}"
-    ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -l ${SSH__DEFAULT_LOGIN_NAME} -i ssh_conf/id_rsa "${SSH__VM_USERNAME}@localhost"
+    ensure_local_key_exists
+    ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -l ${SSH__VM_USERNAME} -i "${SSH__LOCAL_KEY_FILE}" "localhost"
 }
 
 # Run a command in the virtual maschine.
@@ -102,8 +115,9 @@ function ssh__exec
     shift 1 # Parameter 2-x is used as SSH command.
 
     ssh__vm_name_2_ssh_port "${VM_NAME}"
-    #ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i ssh_conf/id_rsa ${SSH__VM_USERNAME}@localhost $*
-    ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -l ${SSH__DEFAULT_LOGIN_NAME} -i ssh_conf/id_rsa "${SSH__VM_USERNAME}@locahost" $*
+    ensure_local_key_exists
+    #ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i "${SSH__LOCAL_KEY_FILE}" ${SSH__VM_USERNAME}@localhost $*
+    ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -l ${SSH__VM_USERNAME} -i "${SSH__LOCAL_KEY_FILE}" "${SSH__VM_USERNAME}@locahost" $*
     ERR=${?}
 
     return ${ERR}
