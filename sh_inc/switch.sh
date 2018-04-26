@@ -1,10 +1,8 @@
 # Create a new virtual switch.
 function switch__start
 {
-    local VDE_SWITCH_NAME
+    local VDE_SWITCH_NAME="${1}"
     local SWITCH_RUNNING
-
-    VDE_SWITCH_NAME="${1}"
 
     SWITCH_RUNNING=$(switch__status "${VDE_SWITCH_NAME}")
     if [ "${SWITCH_RUNNING}" = "Online" ]; then
@@ -19,12 +17,10 @@ function switch__start
 # Shutdown a switch
 function switch__stop
 {
-    local VDE_SWITCH_NAME
+    local VDE_SWITCH_NAME="${1}"
     local SWITCH_RUNNING
     local SWITCH_PS_LINE
     local PID
-
-    VDE_SWITCH_NAME="${1}"
 
     SWITCH_RUNNING=$(switch__status "${VDE_SWITCH_NAME}")
     if [ "${SWITCH_RUNNING}" = "Offline" ]; then
@@ -42,15 +38,14 @@ function switch__stop
 # Login into the terminal of the switch.
 function switch__console
 {
-    local VDE_SWITCH_NAME
+    local VDE_SWITCH_NAME="${1}"
 
-    VDE_SWITCH_NAME="${1}"
     unixterm "/tmp/${PROGRAM_SHORT_NAME}__switch__${VDE_SWITCH_NAME}.mgmt"
 }
 
 function switch__online
 {
-    local SWITCH_NAME=${1}
+    local SWITCH_NAME="${1}"
     # local STATUS_STR="$(echo -n "1")"
     local PID_LINE_CNT=$(ps aux | grep "vde_switch" | grep -c "/tmp/${PROGRAM_SHORT_NAME}__switch__${SWITCH_NAME}")
     if [ "${PID_LINE_CNT}" != "1" ]; then
