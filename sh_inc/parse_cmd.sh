@@ -67,18 +67,50 @@ function expected_param
     # if [ ${ARGS} -lt ${MIN_ARGS} -o ${ARGS} -gt ${MAX_ARGS} ]; then
     if [ ${ARGS} -lt ${MIN_ARGS} ]; then
         invalid_params "Number of parameter not allowed for action \"${ACTION}\" with sub action \"${SUB_ACTION}\""
+}
+
+# Make some basic checks on the parameters
+# given by the user.
+function expected_param_num_range
+{
+    local ARGS=${1}
+    local MIN_ARGS=${2}
+    local MAX_ARGS=${3}
+
+    if [ ${ARGS} -lt ${MIN_ARGS} ]; then
+	invalid_params "Number of parameter not allowed for action \"${ACTION}\" with sub action \"${SUB_ACTION}\""
+    fi
+
+    if [ ${ARGS} -gt ${MAX_ARGS} ]; then
+	invalid_params "Number of parameter not allowed for action \"${ACTION}\" with sub action \"${SUB_ACTION}\""
     fi
 }
 
 function parse_cmd
 {
-    if [ "$#" = "0" -o "$#" = "1" ]; then
-        invalid_params "Too few arguments."
+    local ERR=0
+    local ACTION
+    local SUB_ACTION
+
+    if   [ "$#" = "0" ]; then
+	invalid_params "Too few arguments."
     fi
 
-    local ERR=0
-    local ACTION=${1}
-    local SUB_ACTION=${2}
+    ACTION=${1}
+
+    if [ "$#" = "1" ]; then
+	case "${ACTION}" in
+	    'list')
+		shortcut__list
+		;;
+	    *)
+		invalid_params "Too few arguments."
+		;;
+	esac
+	exit ${ERR}
+    fi
+
+    SUB_ACTION=${2}
 
     shift 2
 
