@@ -104,7 +104,7 @@ function ssh__login
 
     ssh__vm_name_2_ssh_port "${VM_NAME}"
     ensure_local_key_exists
-    ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -l ${SSH__VM_USERNAME} -i "${SSH__LOCAL_KEY_FILE}" "localhost"
+    ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -l ${SSH__VM_USERNAME} -i "${SSH__LOCAL_KEY_FILE}" localhost
 }
 
 # Run a command in the virtual maschine.
@@ -116,8 +116,7 @@ function ssh__exec
 
     ssh__vm_name_2_ssh_port "${VM_NAME}"
     ensure_local_key_exists
-    #ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -i "${SSH__LOCAL_KEY_FILE}" ${SSH__VM_USERNAME}@localhost $*
-    ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -l ${SSH__VM_USERNAME} -i "${SSH__LOCAL_KEY_FILE}" "${SSH__VM_USERNAME}@locahost" $*
+    ssh -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -p ${SSH__VM_PORT} -l ${SSH__VM_USERNAME} -i "${SSH__LOCAL_KEY_FILE}" localhost $*
     ERR=${?}
 
     return ${ERR}
