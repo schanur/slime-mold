@@ -580,12 +580,10 @@ function vm__list
 {
     local LOCKFILE_NAME
     local VM_NAME
-    local VM_SSH_PORT
 
     for LOCKFILE_NAME in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__*__*.lock"); do
         VM_NAME=$(    echo "${LOCKFILE_NAME}" |sed 's|/tmp/${PROGRAM_SHORT_NAME}__vde_vm__||g' |sed 's|.*__||g' |sed 's|.lock||g')
-        VM_SSH_PORT=$(echo "${LOCKFILE_NAME}" |sed 's|/tmp/${PROGRAM_SHORT_NAME}__vde_vm__||g' |sed 's|__.*||g' |sed 's|.lock||g')
-        echo "${VM_NAME} ${VM_SSH_PORT}"
+        echo "${VM_NAME}"
     done
 }
 
