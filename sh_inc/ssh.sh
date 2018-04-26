@@ -1,11 +1,9 @@
 # Globals
 SSH__VM_PORT=""
 
-SSH__VM_USERNAME=$(whoami)
-
 # Options
 SSH__CONNECT_TIMEOUT=5
-SSH__DEFAULT_LOGIN_NAME="sm"
+SSH__VM_USERNAME="sm"
 
 
 # TODO: Abort if an ssh kay pair was already created.
