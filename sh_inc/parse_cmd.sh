@@ -60,8 +60,7 @@ function invalid_params
     exit 1
 }
 
-# Make some basic checks on the parameters
-# given by the user.
+# Make some basic checks on the parameters given by the user.
 function expected_param
 {
     local ARGS=${1}
@@ -79,8 +78,7 @@ function expected_param
     fi
 }
 
-# Make some basic checks on the parameters
-# given by the user.
+# Make some basic checks on the parameters given by the user.
 function expected_param_num_range
 {
     local ARGS=${1}

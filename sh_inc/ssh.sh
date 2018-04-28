@@ -18,8 +18,8 @@ function ssh__create_local_key
     ssh-keygen -q -f "${SSH__LOCAL_KEY_FILE}" -N ""
 }
 
-# Check if an RSA key, which is used to login into the
-# virtual maschines without a password, was already created.
+# Check if an RSA key, which is used to login into the virtual
+# maschines without a password, was already created.
 function ssh__login_key_exists
 {
     if [ ! -f "${SSH__LOCAL_KEY_FILE}" ]; then
@@ -36,9 +36,8 @@ function ensure_local_key_exists
     fi
 }
 
-# Copy one or more files to VM. If source file
-# is a directory, the directory and all
-# files/directories in it are also coppied
+# Copy one or more files to VM. If source file is a directory, the
+# directory and all files/directories in it are also coppied
 # recursively.
 #
 # Parameter:
@@ -64,10 +63,9 @@ function ssh__send
     # scp -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} ${RECURSIVE} -P 12201 ${SOURCE} ${SSH__VM_USERNAME}@127.0.0.1:${TARGET}
 }
 
-# Copy one or more files from the  VM to the local
-# filesystem. If source file is a directory, the
-# directory and all files/directories in it are
-# also coppied recursively.
+# Copy one or more files from the VM to the local filesystem. If
+# source file is a directory, the directory and all files/directories
+# in it are also coppied recursively.
 #
 # Parameter:
 # 1. Source (path/filename in VM filesystem)
@@ -85,8 +83,7 @@ function ssh__receive
     scp -o ConnectTimeout=${SSH__CONNECT_TIMEOUT} -r -P ${SSH__VM_PORT} -i "${SSH__LOCAL_KEY_FILE}" -l ${SSH__VM_USERNAME} "localhost:${SOURCE}" "${TARGET}"
 }
 
-# Install a preshared key in a VM to allow
-# login without passwort.
+# Install a preshared key in a VM to allow login without passwort.
 function ssh__install_key
 {
     local VM_NAME="${1}"

@@ -68,9 +68,8 @@ function appliance__watchdog
     exit 1
 }
 
-# Check if VM is online. If it is not
-# online, start the VM and block until
-# the VM is online.
+# Check if VM is online. If it is not online, start the VM and block
+# until the VM is online.
 function appliance__get_vm_online
 {
     local VM_NAME
@@ -80,8 +79,7 @@ function appliance__get_vm_online
     echo "appliance__get_vm_online"
 }
 
-# Stop the VM and block until it is
-# offline.
+# Stop the VM and block until it is offline.
 function appliance__get_vm_offline
 {
     echo "appliance__get_vm_offline"
@@ -124,9 +122,8 @@ function appliance__list_2_array
 }
 
 # With the functions below the comment, the syntax of the appliance
-# files are compatible with bash sytax. Therefore we can execute
-# the appliance files directly.
-
+# files are compatible with bash sytax. Therefore we can execute the
+# appliance files directly.
 function section
 {
     echo "section found: $*"
@@ -147,4 +144,3 @@ function myc
         exit 1
     fi
 }
-
