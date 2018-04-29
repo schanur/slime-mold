@@ -11,14 +11,16 @@ PROGRAM_SHORT_NAME=${1}
 IMAGE_FILE=${2}
 VM_SSH_PORT=${3}
 VM_SPICE_PORT=${4}
-UMODE_NIC_MAC_ADDR=${5}
-VDE_NIC_MAC_ADDR=${6}
-VDE_SWITCH_NAME=${7}
-LOCKFILE_VM=${8}
-HW_ACCELERATION_OPTION=${9}
-VM_NAME=${10}
-VM_IP=${11}
-VM_VLAN=${12}
+VM_QEMU_MONITOR_PORT=${5}
+UMODE_NIC_MAC_ADDR=${6}
+VDE_NIC_MAC_ADDR=${7}
+VDE_SWITCH_NAME=${8}
+LOCKFILE_VM=${9}
+HW_ACCELERATION_OPTION=${10}
+VM_NAME=${11}
+VM_IP=${12}
+VM_VLAN=${13}
+
 VM_MEM="256"
 
 HW_ACCELERATION_STR=""
@@ -52,6 +54,7 @@ BACKGROUND_QEMU_CMD="\
 ${INTERACTIVE_QEMU_CMD} \
 -display none \
 -spice port=${VM_SPICE_PORT},disable-ticketing \
+-qmp-pretty tcp:localhost:${VM_QEMU_MONITOR_PORT},server \
 "
 
 # QEMU_CMD=${INTERACTIVE_QEMU_CMD}
@@ -62,6 +65,7 @@ echo "VM name:               ${VM_NAME}"
 echo "Image file:            ${IMAGE_FILE}"
 echo "SSH port:              ${VM_SSH_PORT}"
 echo "Spice port:            ${VM_SPICE_PORT}"
+echo "Monitor port:          ${VM_QEMU_MONITOR_PORT}"
 echo "UMN IP:                ${VM_IP}"
 echo "UMN VLAN:              ${VM_VLAN}"
 echo "UMN MAC addr:          ${UMODE_NIC_MAC_ADDR}"

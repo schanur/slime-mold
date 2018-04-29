@@ -72,7 +72,7 @@ function vm__find_free_tcp_port_group
         echo "PORT_GROUP_START: ${PORT_GROUP_START}"
         # Skip testing ports that are marked as already listening.
         PORT_IN_USE=0
-        ((PORT_GROUP_END=(PORT_GROUP_START+PORT_GROUP_SIZE)-1))
+        (( PORT_GROUP_END = (PORT_GROUP_START+PORT_GROUP_SIZE) - 1 ))
         for PORT in $(seq ${PORT_GROUP_START} ${PORT_GROUP_END}); do
             case $(echo "${PORTS_IN_USE}" | grep -c ${PORT}) in
                 0)
@@ -221,6 +221,7 @@ function vm__start
     local VM_RUNNING
     local VM_SSH_PORT
     local VM_SPICE_PORT
+    local VM_QEMU_MONITOR_PORT
     local VM_IP
     local VM_VLAN
     local LOCKFILE_VM
@@ -243,7 +244,8 @@ function vm__start
 
     vm__find_free_tcp_port_group
     VM_SSH_PORT=${VM__FOUND_FREE_PORT_GROUP}
-    VM_SPICE_PORT=$(( VM__FOUND_FREE_PORT_GROUP + 1 ))
+    VM_SPICE_PORT=$((        VM__FOUND_FREE_PORT_GROUP + 1 ))
+    VM_QEMU_MONITOR_PORT=$(( VM__FOUND_FREE_PORT_GROUP + 2 ))
 
     vm__find_free_ip
     VM_IP=${VM__FOUND_FREE_IP}
@@ -254,23 +256,24 @@ function vm__start
     echo ${VM_VLAN}
 
     lf__lockfile_name__virtual_machine ${VM_SSH_PORT} "${VM_NAME}"
-    LOCKFILE_VM="${LF__LOCKFILE_NAME}"
+x    LOCKFILE_VM="${LF__LOCKFILE_NAME}"
 
     vm__check_kvm_extension
     HW_ACCELERATION=${VM__HW_ACCELERATION}
 
-    echo "PROGRAM_SHORT_NAME: ${PROGRAM_SHORT_NAME}"
-    echo "VM_RUNNING:         ${VM_RUNNING}"
-    echo "IMAGE_FILE:         ${IMAGE_FILE}"
-    echo "VM_SSH_PORT:        ${VM_SSH_PORT}"
-    echo "VM_SPICE_PORT:      ${VM_SPICE_PORT}"
-    echo "UMODE_NIC_MAC_ADDR: ${UMODE_NIC_MAC_ADDR}"
-    echo "VDE_NIC_MAC_ADDR:   ${VDE_NIC_MAC_ADDR}"
-    echo "VDE_SWITCH_NAME:    ${VDE_SWITCH_NAME}"
-    echo "LOCKFILE_VM:        ${LOCKFILE_VM}"
-    echo "HW_ACCELERATION:    ${HW_ACCELERATION}"
-    echo "VM_IP:              ${VM_IP}"
-    echo "VM_VLAN:            ${VM_VLAN}"
+    echo "PROGRAM_SHORT_NAME:   ${PROGRAM_SHORT_NAME}"
+    echo "VM_RUNNING:           ${VM_RUNNING}"
+    echo "IMAGE_FILE:           ${IMAGE_FILE}"
+    echo "VM_SSH_PORT:          ${VM_SSH_PORT}"
+    echo "VM_SPICE_PORT:        ${VM_SPICE_PORT}"
+    echo "VM_QEMU_MONITOR_PORT: ${VM_QEMU_MONITOR_PORT}"
+    echo "UMODE_NIC_MAC_ADDR:   ${UMODE_NIC_MAC_ADDR}"
+    echo "VDE_NIC_MAC_ADDR:     ${VDE_NIC_MAC_ADDR}"
+    echo "VDE_SWITCH_NAME:      ${VDE_SWITCH_NAME}"
+    echo "LOCKFILE_VM:          ${LOCKFILE_VM}"
+    echo "HW_ACCELERATION:      ${HW_ACCELERATION}"
+    echo "VM_IP:                ${VM_IP}"
+    echo "VM_VLAN:              ${VM_VLAN}"
 
     #  ${PROGRAM_SHORT_NAME} ${IMAGE_FILE} ${VM_SSH_PORT} ${UMODE_NIC_MAC_ADDR} ${VDE_NIC_MAC_ADDR} ${VDE_SWITCH_NAME} ${LOCKFILE_VM} ${HW_ACCELERATION} ${VM_NAME} ${VM_IP} ${VM_VLAN}
 
@@ -281,6 +284,7 @@ function vm__start
           "${IMAGE_FILE}" \
           "${VM_SSH_PORT}" \
           "${VM_SPICE_PORT}" \
+          "${VM_QEMU_MONITOR_PORT}" \
           "${UMODE_NIC_MAC_ADDR}" \
           "${VDE_NIC_MAC_ADDR}" \
           "${VDE_SWITCH_NAME}" \
@@ -316,8 +320,6 @@ function vm__stop_blocking
 
     vm__stop "${VM_NAME}"
 }
-
-
 
 # Check if the VM name occurs in a lockfile.
 # Echos values:
