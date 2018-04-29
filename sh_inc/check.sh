@@ -20,6 +20,15 @@ function check_qemu
     check_executable_available qemu-system-x86_64
 }
 
+# Exits the application if no TCP socket tool is available.  TODO:
+# Move to libbivalvia and use an API that cann be used with diffrent
+# programs like netcat, telnet, /proc, etc...
+function check_qemu_qmp
+{
+    check_executable_available nc
+}
+
+
 # Exits the application if VDE is not available or too old.
 function check_vde
 {
@@ -59,6 +68,7 @@ function check_linux_tools
 function check_all_dependencies
 {
     check_qemu
+    check_qemu_qmp
     check_vde
     check_ssh
     check_linux_tools
