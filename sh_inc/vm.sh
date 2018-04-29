@@ -414,7 +414,12 @@ function vm__download_prebuild_to_cache
     fi
 }
 
+# Calculate checksum of a file.
+# Parameter:
+# 1) Filename
+# 2) Checksum type
 #
+# Currently SHA256 and SHA512 are supported.
 function vm__file_checksum
 {
     local FILENAME="${1}"
@@ -428,6 +433,7 @@ function vm__file_checksum
             sha512sum "${FILENAME}" | cut -f 1 -d ' '
             ;;
         *)
+            echo "Unsupported checksum type: ${CHECKSUM_TYPE}"
             exit 1
             ;;
     esac
