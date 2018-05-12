@@ -78,6 +78,10 @@ echo
 echo "Command:"
 echo "${QEMU_CMD}"
 
+if [ -f "${VM_LOCKFILE}" ]; then
+   echo "Virtual machine is already running or was not properly halted (lockfile exists). Abort!"
+   exit 1
+fi
 lf__create_lockfile "${LOCKFILE_VM}"
 
 echo "qemu parent PID: ${$}"
