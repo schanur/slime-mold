@@ -15,15 +15,16 @@ BIVALVIA_PATH="${SCRIPT_PATH}/vendor/libbivalvia/bivalvia"
 source "${BIVALVIA_PATH}/debug.sh"
 
 INCLUDE_PATH="${SCRIPT_PATH}/sh_inc"
-source "${INCLUDE_PATH}/lock.sh"
-source "${INCLUDE_PATH}/check.sh"
-source "${INCLUDE_PATH}/parse_cmd.sh"
 source "${INCLUDE_PATH}/appliance.sh"
+source "${INCLUDE_PATH}/check.sh"
+source "${INCLUDE_PATH}/lock.sh"
+source "${INCLUDE_PATH}/parse_cmd.sh"
+source "${INCLUDE_PATH}/qemu.sh"
+source "${INCLUDE_PATH}/shortcut.sh"
+source "${INCLUDE_PATH}/spice.sh"
+source "${INCLUDE_PATH}/ssh.sh"
 source "${INCLUDE_PATH}/switch.sh"
 source "${INCLUDE_PATH}/vm.sh"
-source "${INCLUDE_PATH}/ssh.sh"
-source "${INCLUDE_PATH}/spice.sh"
-source "${INCLUDE_PATH}/shortcut.sh"
 
 
 

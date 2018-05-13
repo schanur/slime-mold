@@ -31,6 +31,7 @@ function usage
     echo "| ${PROGRAM_SHORT_NAME}    vm        kill                                          VM_NAME                                  |"
     echo "| ${PROGRAM_SHORT_NAME}    vm        log                                           VM_NAME                                  |"
     echo "| ${PROGRAM_SHORT_NAME}    vm        status                                        VM_NAME                                  |"
+    echo "| ${PROGRAM_SHORT_NAME}    vm        console                                       VM_NAME                                  |"
     echo "| ${PROGRAM_SHORT_NAME}    vm        list                                                                                   |"
     echo "--${ADJUSTMENT_VAR__}--------------------------------------------------------------------------------------------------------"
     echo "| ${PROGRAM_SHORT_NAME}    ssh       install_key                                   VM_NAME                                  |"
@@ -198,6 +199,10 @@ function parse_cmd
         elif [ "${SUB_ACTION}" = "status" ];               then
             expected_param ${#} 1
             vm__status "${1}"
+
+        elif [ "${SUB_ACTION}" = "console" ];              then
+            expected_param ${#} 1
+            vm__console "${1}"
 
         elif [ "${SUB_ACTION}" = "list" ];                 then
             expected_param ${#} 0

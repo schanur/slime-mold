@@ -11,15 +11,16 @@ PROGRAM_SHORT_NAME=${1}
 IMAGE_FILE=${2}
 VM_SSH_PORT=${3}
 VM_SPICE_PORT=${4}
-VM_QEMU_MONITOR_PORT=${5}
-UMODE_NIC_MAC_ADDR=${6}
-VDE_NIC_MAC_ADDR=${7}
-VDE_SWITCH_NAME=${8}
-LOCKFILE_VM=${9}
-HW_ACCELERATION_OPTION=${10}
-VM_NAME=${11}
-VM_IP=${12}
-VM_VLAN=${13}
+VM_QMP_COMMAND_PORT=${5}
+VM_QMP_CONSOLE_PORT=${6}
+UMODE_NIC_MAC_ADDR=${7}
+VDE_NIC_MAC_ADDR=${8}
+VDE_SWITCH_NAME=${9}
+VM_LOCKFILE=${10}
+HW_ACCELERATION_OPTION=${11}
+VM_NAME=${12}
+VM_IP=${13}
+VM_VLAN=${14}
 
 VM_MEM="256"
 
@@ -54,7 +55,8 @@ BACKGROUND_QEMU_CMD="\
 ${INTERACTIVE_QEMU_CMD} \
 -display none \
 -spice port=${VM_SPICE_PORT},disable-ticketing \
--qmp-pretty tcp:localhost:${VM_QEMU_MONITOR_PORT},server \
+-qmp-pretty tcp:localhost:${VM_QMP_COMMAND_PORT},server \
+-qmp-pretty tcp:localhost:${VM_QMP_CONSOLE_PORT},server \
 "
 
 # QEMU_CMD=${INTERACTIVE_QEMU_CMD}
@@ -65,13 +67,14 @@ echo "VM name:               ${VM_NAME}"
 echo "Image file:            ${IMAGE_FILE}"
 echo "SSH port:              ${VM_SSH_PORT}"
 echo "Spice port:            ${VM_SPICE_PORT}"
-echo "Monitor port:          ${VM_QEMU_MONITOR_PORT}"
+echo "QMP Command port:      ${VM_QMP_COMMAND_PORT}"
+echo "QMP Console port:      ${VM_QMP_CONSOLE_PORT}"
 echo "UMN IP:                ${VM_IP}"
 echo "UMN VLAN:              ${VM_VLAN}"
 echo "UMN MAC addr:          ${UMODE_NIC_MAC_ADDR}"
 echo "VDE MAC addr:          ${VDE_NIC_MAC_ADDR}"
 echo "VDE switch:            ${VDE_SWITCH_NAME}"
-echo "Lockfile:              ${LOCKFILE_VM}"
+echo "Lockfile:              ${VM_LOCKFILE}"
 echo "Acceleration:          ${HW_ACCELERATION_OPTION}"
 echo "Hardware Acceleration: ${HW_ACCELERATION_OPTION}"
 echo
@@ -82,7 +85,8 @@ if [ -f "${VM_LOCKFILE}" ]; then
    echo "Virtual machine is already running or was not properly halted (lockfile exists). Abort!"
    exit 1
 fi
-lf__create_lockfile "${LOCKFILE_VM}"
+
+lf__create_lockfile "${VM_LOCKFILE}"
 
 echo "qemu parent PID: ${$}"
 echo "Start time:      $(date)"
@@ -92,4 +96,4 @@ ${QEMU_CMD} || RET=${?}
 echo "Return code:     ${RET}"
 echo "Stop time:       $(date)"
 
-lf__destroy_lockfile "${LOCKFILE_VM}"
+lf__destroy_lockfile "${VM_LOCKFILE}"

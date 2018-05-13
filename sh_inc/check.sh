@@ -35,6 +35,12 @@ function check_vde
     check_executable_available vde_switch
 }
 
+# Exits the application if VDE is not available or too old.
+function check_vm
+{
+    check_executable_available telnet
+}
+
 # Exits the application if SSH is not available or too old.
 function check_ssh
 {
@@ -70,6 +76,7 @@ function check_all_dependencies
     check_qemu
     check_qemu_qmp
     check_vde
+    check_vm
     check_ssh
     check_linux_tools
 }

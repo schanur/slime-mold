@@ -54,6 +54,7 @@ stop \
 kill \
 log \
 status \
+console \
 list"
     local SSH_SUBACTION_OPTS="\
 install_key \
@@ -134,6 +135,7 @@ login"
                 vm_kill)                 COMPLETE_ACTION="active_vm" ;;
                 vm_log)                  COMPLETE_ACTION="active_vm" ;;
                 vm_status)               COMPLETE_ACTION="active_vm" ;;
+                vm_console)              COMPLETE_ACTION="active_vm" ;;
                 vm_list)                 COMPLETE_ACTION="none" ;;
 
                 ssh_install_key)         COMPLETE_ACTION="active_vm" ;;

@@ -28,9 +28,9 @@ function spice__vm_name_2_ssh_port
     local CURR_VM_NAME
     local VM_NAME="${1}"
 
-    # TODO: extract {spice|ssh}__vm_name_2_ssh_port
+    # TODO: extract {spice|ssh|qmp}__vm_name_2_ssh_port
     for LOCKFILE_NAME_PARTIAL in $(find /tmp -maxdepth 1 -name "${PROGRAM_SHORT_NAME}__vde_vm__*__${VM_NAME}.lock" |sed "s/\/tmp\/${PROGRAM_SHORT_NAME}__vde_vm__//g"); do
-        CURR_VM_NAME=$(echo "${LOCKFILE_NAME_PARTIAL}" |sed "s/${PROGRAM_SHORT_NAME}__vde_vm__//g" |sed 's/.*__//g' |sed 's/\.lock//g')
+        CURR_VM_NAME=$( echo "${LOCKFILE_NAME_PARTIAL}" |sed "s/${PROGRAM_SHORT_NAME}__vde_vm__//g" |sed 's/.*__//g' |sed 's/\.lock//g')
         if [ "${CURR_VM_NAME}" = "${VM_NAME}" ]; then
             CURR_PORT=$(echo "${LOCKFILE_NAME_PARTIAL}" |sed 's/__.*\.lock//g')
             SPICE__VM_PORT=${CURR_PORT}

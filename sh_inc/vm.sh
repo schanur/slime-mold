@@ -214,18 +214,19 @@ function vm__unique_mac
 function vm__start
 {
     local IMAGE_FILE="${1}"
+    local VM_SSH_PORT
     local VDE_SWITCH_NAME="${2}"
     local VDE_NIC_MAC_ADDR
     local UMODE_NIC_MAC_ADDR
     local VM_NAME
     local VM_RUNNING
-    local VM_SSH_PORT
     local VM_SPICE_PORT
-    local VM_QEMU_MONITOR_PORT
+    local VM_QMP_COMMAND_PORT
+    local VM_QMP_CONSOLE_PORT
     local VM_IP
     local VM_VLAN
     local LOCKFILE_VM
-    local HW_ACCELERATION
+    local HW_ACCELERATION_OPTION
     local ASYNC_QEMU_SCRIPT
 
     VM_NAME=$(vm__image_file_2_vm_name "${IMAGE_FILE}")
@@ -244,8 +245,9 @@ function vm__start
 
     vm__find_free_tcp_port_group
     VM_SSH_PORT=${VM__FOUND_FREE_PORT_GROUP}
-    VM_SPICE_PORT=$((        VM__FOUND_FREE_PORT_GROUP + 1 ))
-    VM_QEMU_MONITOR_PORT=$(( VM__FOUND_FREE_PORT_GROUP + 2 ))
+    VM_SPICE_PORT=$((       VM__FOUND_FREE_PORT_GROUP + 1 ))
+    VM_QMP_COMMAND_PORT=$(( VM__FOUND_FREE_PORT_GROUP + 2 ))
+    VM_QMP_CONSOLE_PORT=$(( VM__FOUND_FREE_PORT_GROUP + 3 ))
 
     vm__find_free_ip
     VM_IP=${VM__FOUND_FREE_IP}
@@ -256,24 +258,33 @@ function vm__start
     echo ${VM_VLAN}
 
     lf__lockfile_name__virtual_machine ${VM_SSH_PORT} "${VM_NAME}"
-    LOCKFILE_VM="${LF__LOCKFILE_NAME}"
+    VM_LOCKFILE="${LF__LOCKFILE_NAME}"
 
     vm__check_kvm_extension
-    HW_ACCELERATION=${VM__HW_ACCELERATION}
+    HW_ACCELERATION_OPTION=${VM__HW_ACCELERATION}
 
-    echo "PROGRAM_SHORT_NAME:   ${PROGRAM_SHORT_NAME}"
     echo "VM_RUNNING:           ${VM_RUNNING}"
-    echo "IMAGE_FILE:           ${IMAGE_FILE}"
-    echo "VM_SSH_PORT:          ${VM_SSH_PORT}"
-    echo "VM_SPICE_PORT:        ${VM_SPICE_PORT}"
-    echo "VM_QEMU_MONITOR_PORT: ${VM_QEMU_MONITOR_PORT}"
-    echo "UMODE_NIC_MAC_ADDR:   ${UMODE_NIC_MAC_ADDR}"
-    echo "VDE_NIC_MAC_ADDR:     ${VDE_NIC_MAC_ADDR}"
-    echo "VDE_SWITCH_NAME:      ${VDE_SWITCH_NAME}"
-    echo "LOCKFILE_VM:          ${LOCKFILE_VM}"
-    echo "HW_ACCELERATION:      ${HW_ACCELERATION}"
-    echo "VM_IP:                ${VM_IP}"
-    echo "VM_VLAN:              ${VM_VLAN}"
+
+    # async_qemu.sh parameter
+    echo "PROGRAM_SHORT_NAME:     ${PROGRAM_SHORT_NAME}"
+    echo "IMAGE_FILE:             ${IMAGE_FILE}"
+    echo "VM_SSH_PORT:            ${VM_SSH_PORT}"
+    echo "VM_SPICE_PORT:          ${VM_SPICE_PORT}"
+    echo "VM_QMP_COMMAND_PORT:    ${VM_QMP_COMMAND_PORT}"
+    echo "VM_QMP_CONSOLE_PORT:    ${VM_QMP_CONSOLE_PORT}"
+    echo "UMODE_NIC_MAC_ADDR:     ${UMODE_NIC_MAC_ADDR}"
+    echo "VDE_NIC_MAC_ADDR:       ${VDE_NIC_MAC_ADDR}"
+    echo "VDE_SWITCH_NAME:        ${VDE_SWITCH_NAME}"
+    echo "VM_LOCKFILE:            ${VM_LOCKFILE}"
+    echo "HW_ACCELERATION_OPTION: ${HW_ACCELERATION_OPTION}"
+    echo "VM_NAME:                ${VM_NAME}"
+    echo "VM_IP:                  ${VM_IP}"
+    echo "VM_VLAN:                ${VM_VLAN}"
+
+    if [ ! -r "${IMAGE_FILE}" ]; then
+       echo "VM image file does not exist."
+       exit 1
+    fi
 
     #  ${PROGRAM_SHORT_NAME} ${IMAGE_FILE} ${VM_SSH_PORT} ${UMODE_NIC_MAC_ADDR} ${VDE_NIC_MAC_ADDR} ${VDE_SWITCH_NAME} ${LOCKFILE_VM} ${HW_ACCELERATION} ${VM_NAME} ${VM_IP} ${VM_VLAN}
 
@@ -284,24 +295,25 @@ function vm__start
           "${IMAGE_FILE}" \
           "${VM_SSH_PORT}" \
           "${VM_SPICE_PORT}" \
-          "${VM_QEMU_MONITOR_PORT}" \
+          "${VM_QMP_COMMAND_PORT}" \
+          "${VM_QMP_CONSOLE_PORT}" \
           "${UMODE_NIC_MAC_ADDR}" \
           "${VDE_NIC_MAC_ADDR}" \
           "${VDE_SWITCH_NAME}" \
-          "${LOCKFILE_VM}" \
-          "${HW_ACCELERATION}" \
+          "${VM_LOCKFILE}" \
+          "${HW_ACCELERATION_OPTION}" \
           "${VM_NAME}" \
           "${VM_IP}" \
           "${VM_VLAN}" \
-          > "${LOCKFILE_VM}.log" 2>&1 &
+          > "${VM_LOCKFILE}.log" 2>&1 &
 }
 
-# Stop the VM by sending the "halt" command over SSH.
+# Stop the VM by sending the "system_powerdown" command over QMP.
 function vm__stop
 {
     local VM_NAME="${1}"
 
-    ssh__exec "${VM_NAME}" halt
+    qemu__qmp_execute "${VM_NAME}" system_powerdown
 }
 
 # Stop the VM by sending SIGKILL to the qemu process.
@@ -309,7 +321,7 @@ function vm__kill
 {
     local VM_NAME="${1}"
 
-    ssh__exec "${VM_NAME}" halt
+    qemu__qmp_execute "${VM_NAME}" system_powerdown
 }
 
 # Stop the VM by sending the "halt" command over SSH. The function
@@ -504,8 +516,8 @@ function vm__create_from_prebuild
 # Create a new QEMU image of the format qcow2. The Image size is 5 GB.
 function vm__create_new
 {
-    IMAGE_NAME="${1}"
-    IMAGE_SIZE="5G"
+    local IMAGE_NAME="${1}"
+    local IMAGE_SIZE="5G"
 
     qemu-img create -f qcow2 "${IMAGE_NAME}" ${IMAGE_SIZE}
 }
@@ -543,6 +555,7 @@ function vm__log
     done
 }
 
+
 # Print the status of a virtual machine.
 # Known states:
 # online)     VM running and ready to take commands
@@ -574,6 +587,37 @@ function vm__status
         echo "offline"
     fi
 }
+
+
+function vm__console
+{
+    local VM_NAME="${1}"
+
+    qemu__qmp_console "${VM_NAME}"
+}
+
+
+# function vm__unused
+# {
+#     local VM_NAME="${1}"
+#     local SSH_ERR
+#     local VM_RUNNING
+
+#     vm__vm_running "${VM_NAME}"
+#     VM_RUNNING=${?}
+#     if [ "${VM_RUNNING}" = "1" ]; then
+#         ssh__exec "${VM_NAME}" true 2>/dev/null
+#         SSH_ERR=${?}
+#         if [ "${SSH_ERR}" = "0" ]; then
+#             echo "online"
+#         else
+#             echo "booting"
+#         fi
+#     else
+#         echo "offline"
+#     fi
+# }
+
 
 # Print a list of all running VM instances.
 function vm__list
