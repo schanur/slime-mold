@@ -49,6 +49,7 @@ function vm__check_kvm_extension
     fi
 }
 
+
 # Find a free TCP port group (4 continuous ports) in the range of 12201 - 12299 on the host.
 # It returns the first port number of the group.
 function vm__find_free_tcp_port_group
@@ -74,7 +75,7 @@ function vm__find_free_tcp_port_group
         PORT_IN_USE=0
         (( PORT_GROUP_END = (PORT_GROUP_START+PORT_GROUP_SIZE) - 1 ))
         for PORT in $(seq ${PORT_GROUP_START} ${PORT_GROUP_END}); do
-            case $(echo "${PORTS_IN_USE}" | grep -c ${PORT}) in
+            case $(echo "${PORTS_IN_USE}" | grep -c ${PORT} || true) in
                 0)
                     continue
                     ;;
@@ -100,6 +101,7 @@ function vm__find_free_tcp_port_group
             echo "Warning! TCP port ${PORT_GROUP_START} is not listening, but lockfile exists."
             continue
         fi
+
         VM__FOUND_FREE_PORT_GROUP=${PORT_GROUP_START}
         return
     done
@@ -112,6 +114,7 @@ function vm__used_ip_list
 {
     local IP
     local IFS_RESTORE=${IFS}
+
     IFS=$(echo -e "\n")
     VM__USED_IP_LIST=""
     while read IP; do
